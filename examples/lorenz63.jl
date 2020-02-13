@@ -1,35 +1,49 @@
-import numpy as np
-class Runner(object):
-    def __init__(self, *args, **kwargs):
-        self.solverName = "Lorenz '63"
-        self.sigma = 10.
-        self.beta = 8./3.
-        self.rho = 28.0
-        self.dt = 1.e-2
-        self.state_dim = 3
+struct Runner
+		solverName::String
+        parameter::Real
+		extraParams::Array{Float64,1}
+		stateDim::Int
+		timeStep::Float64
+end
 
+function primalSolver(model::Runner, u0, 
+					  nSteps::Int)
 
-    def primalSolver(self, initFields, parameter,\
-            nSteps):
-        x, y, z = initFields
-        sigma = self.sigma
-        beta = self.beta
-        rho = self.rho
-        dt = self.dt
-        objectiveSeries = np.zeros(nSteps)
-        for i in range(nSteps):
-            dx_dt = sigma*(y - x)
-            dy_dt = x*(parameter + rho - z) - y
-            dz_dt = x*y - beta*z
+		sigma, rho, beta = model.extraParams
+		s = model.parameter
+		dt = model.timeStep
+		d = model.stateDim
+		nTrj = size(u0)[2]
+		
+		u_trj = zeros((d,nTrj,nSteps))
+		u_trj[:,:,1] = u0
+
+        for i = 2:nSteps
+		    x = u_trj[1,:,i-1]
+		    y = u_trj[2,:,i-1]
+		    z = u_trj[3,:,i-1]
+
+			dx_dt = sigma.*(y - x)
             
-            x += dt*dx_dt
-            y += dt*dy_dt
-            z += dt*dz_dt
-            finalFields = np.array([x,y,z])
-            objectiveSeries[i] = self.objective(finalFields, parameter)
-    
-        return finalFields, objectiveSeries
 
+			dy_dt = x.*(s + rho .- z) - y
+			dz_dt = x.*y - beta.*z
+            
+            x .+= dt*dx_dt
+            y .+= dt*dy_dt
+            z .+= dt*dz_dt
+
+			u_trj[1,:,i] = x
+			u_trj[2,:,i] = y
+			u_trj[3,:,i] = z
+		end 
+		return u_trj
+end
+
+lorenz63 = Runner("Lorenz 63", 0, [10., 28., 8/3], 3, 1.e-2)
+u0 = rand(3,10)
+u_trj = primalSolver(lorenz63, u0, 1000) 
+#=
     def objective(self, fields, parameter):
         return fields[-1]
 
@@ -115,7 +129,7 @@ class Runner(object):
                 sensitivity += np.dot(finalFields, self.source(\
                     primalTrj[i-1], parameter))
         return finalFields, sensitivity
-            
+=#            
 
 
 
