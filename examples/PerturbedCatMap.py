@@ -149,7 +149,7 @@ def augmented_step(u, s=[0.,0.], n=1, m=1):
     Psi = lambda phi: (1/pi)*arctan(s[0]*sin(theta(phi))\
             /(1. - s[0]*cos(theta(phi))))
     d = 2
-    d_aug = d + d*d
+    d_aug = 2*d
     u_trj = empty((n+1,d_aug,m))
     u_trj[0] = u
     for i in range(n):
@@ -166,18 +166,18 @@ def augmented_step(u, s=[0.,0.], n=1, m=1):
        
     return u_trj
 
-def dstep(u, s=[0.,0.], m=1):
+def daugmented_step(u, s=[0.,0.], m=1):
     """
     Input info:
     m: number of initial conditions
-    u.shape = (d, m)
+    u.shape = (d_aug, m)
     
     Output:
     Jacobian matrices at each u
-    shape: mxdxd
+    shape: mxd_augxd_aug
     """
 
-    d = u.shape[0]
+    d_aug = u.shape[0]
     theta = lambda phi: 2*pi*phi - s[1]
     dtheta = 2*pi
     num_t = lambda phi:  s[0]*sin(theta(phi))
@@ -192,9 +192,20 @@ def dstep(u, s=[0.,0.], m=1):
     dPsi_dt = lambda t: 1.0/pi/(1 + t*t)
     dPsi = lambda phi: dPsi_dt(t(phi))*dt(phi)
    
+    d2num_t = lambda phi: -s[0]*sin(theta(phi))*dtheta*dtheta
+    d2den_t = lambda phi: -s[0]*cos(theta(phi))*dtheta*dtheta
+    dden_dnum = lambda phi: dnum_t(phi)*dden_t(phi)
+    d2t = lambda phi: -2.0*dden_dnum(phi)/(den_t(phi))**2.0 + \
+            + d2num_t(phi)/den_t(phi) + \
+            2*num_t(phi)*(dden_t(phi)**2.0)/(den_t(phi)**3.0) - \
+            num_t(phi)/(den_t(phi)**2.0)*d2den_t(phi)
+    d2Psi = lambda phi: 1/pi*d2t(phi)/(1 + t(phi)*t(phi)) - \
+            1/pi*(dt(phi)**2.0)*t(phi)/(1 + t(phi)**2.0)**2.0
+
     dPsix = dPsi(u[0])
     du1_1 = 2.0 + dPsix
     du2_1 = 1.0 + dPsix
+  
     dTu_u = ravel(vstack([du1_1, ones(m), du2_1, \
             ones(m)]), order='F')
     dTu_u = dTu_u.reshape([-1,2,2])
