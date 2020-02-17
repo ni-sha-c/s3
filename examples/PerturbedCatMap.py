@@ -80,14 +80,16 @@ def dstep(u, s=[0.,0.], m=1):
     dTu_u = dTu_u.reshape([-1,2,2])
     return dTu_u
 
-def clvs(u,du):
+def clvs(u,Du,dim):
     """
     Inputs:
     u: primal trajectory, shape:dxn
-    du: Jacobian trajectory, shape:nxdxd
+    Du: Jacobian trajectory, shape:nxdxd
+    dim: number of CLVs to calculate
 
     Outputs are: 
-    P: CLV basis along u, shape:nxdxd
+    P: CLV basis of a dim-dimensional subspace 
+    along u, shape:nxdxdim
     the ith column at the nth location, 
     P[n,:,i] contains the ith CLV at u_n
 
@@ -96,30 +98,26 @@ def clvs(u,du):
     d = u.shape[0]
     n = u.shape[1]
 
-    v = rand(d,d)
+    v = rand(d,dim)
     v /= linalg.norm(v, axis=0)
      
-    P = empty((n,d,d))
-    v2_trj = empty((n,2))
-    r_trj = empty((n,2,2))
-    l = zeros(2)
+    P = empty((n,d,dim))
+    R = empty((n,dim,dim))
+    l = zeros(dim)
     for i in range(n):
-        v = dot(dstep_trj[i],v)
-        v,r = linalg.qr(v)
-        l += log(abs(diag(r)))/n
-        v1_trj[i] = v[:,0]
-        v2_trj[i] = v[:,1]
-        r_trj[i] = r
+        v = dot(Du[i],v)
+        P[i],R[i] = linalg.qr(v)
+        l += log(abs(diag(R[i])))/n
 
-    c = array([0.,1.])
+    c = eye(dim)
     for i in range(n-1,-1,-1):
-        v2_trj[i] = c[0]*v1_trj[i] + c[1]*v2_trj[i]
-        v2_trj[i] /= norm(v2_trj[i])
-        c /= norm(c)
-        c = linalg.solve(r_trj[i], c)
+        P[i] = dot(P[i],c)
+        P[i] /= norm(P[i],axis=0)
+        c /= norm(c,axis=0)
+        c = linalg.solve(R[i], c)
 
     print('Lyapunov exponents: ', l)
-    return u_trj, v1_trj.T, v2_trj.T
+    return P
 
 def plot_clvs():
     fig, ax = subplots(1,1)
