@@ -80,24 +80,26 @@ def dstep(u, s=[0.,0.], m=1):
     dTu_u = dTu_u.reshape([-1,2,2])
     return dTu_u
 
-def clvs(n,s=[0.,0.]):
+def clvs(u,du):
     """
+    Inputs:
+    u: primal trajectory, shape:dxn
+    du: Jacobian trajectory, shape:nxdxd
+
     Outputs are: 
-    u_trj: primal trjectory shape:dx(n+1),
-    v1_trj: 1st CLVs along u_trj, shape:dx(n+1)
-    v2_trj: 2nd CLVs along u_trj, shape:dx(n+1)
+    P: CLV basis along u, shape:nxdxd
+    the ith column at the nth location, 
+    P[n,:,i] contains the ith CLV at u_n
+
     """
 
-    u = rand(2)
-    u_trj = step(u, s, n) #u_trj.shape = (n+1)x2x1
-    u_trj = u_trj[:,:,0].T #u_trj.shape = 2x(n+1)
-    n = n+1
-    dstep_trj = dstep(u_trj, s, n) #u_trj.shape = 2xn
+    d = u.shape[0]
+    n = u.shape[1]
 
-    v = rand(2,2)
+    v = rand(d,d)
     v /= linalg.norm(v, axis=0)
      
-    v1_trj = empty((n,2))
+    P = empty((n,d,d))
     v2_trj = empty((n,2))
     r_trj = empty((n,2,2))
     l = zeros(2)
@@ -145,7 +147,7 @@ def augmented_step(u, s=[0.,0.], n=1):
       n: number of timesteps
       m: number of initial conditions
       s[0] = abs(lambda), s[1] = alpha
-      output size: (n+1)x(d+1)xdxm
+      output size: (n+1)xdxm
     '''
     theta = lambda phi: 2*pi*phi - s[1]
     Psi = lambda phi: (1/pi)*arctan(s[0]*sin(theta(phi))\
@@ -210,14 +212,16 @@ def daugmented_step(u, s=[0.,0.]):
     du1_1 = 2.0 + dPsix
     du2_1 = 1.0 + dPsix
       
-    du1 = hstack([du1_1, ones(m), zeros(m), zeros(m)])
-    du2 = hstack([du2_1, ones(m), zeros(m), zeros(m)])
-
     dv1_u1 = d2Psi_dx2(u[0])*u[2]
-    dv1 = hstack([dv1_u1, zeros(m), du1_1, ones(m)]) 
-    dv2 = hstack([dv1_u1, zeros(m), du2_1, ones(m)])
+    
+    d_u1 = hstack([du1_1, du2_1, dv1_u1, dv1_u1])
+    d_u2 = hstack([ones(m), ones(m), zeros(m), zeros(m)])
 
-    daug_step = vstack([du1, du2, dv1, dv2]).reshape(d,d,m)
+
+    d_v1 = hstack([zeros(m), zeros(m), du1_1, du2_1]) 
+    d_v2 = hstack([zeros(m), zeros(m), ones(m), ones(m)])
+
+    daug_step = vstack([d_u1, d_u2, d_v1, d_v2]).reshape(d,d,m).T
     return daug_step
 
 

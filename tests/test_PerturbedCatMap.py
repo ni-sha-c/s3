@@ -12,7 +12,7 @@ def test_daugmented_step():
     err = empty(n_eps)
     u_plus = copy(u)
     u_minus = copy(u)
-    du_fd = empty((d,d,m))
+    du_fd = empty((m,d,d))
     for n,ep in enumerate(eps):
         for i in range(d):
             u_plus[i] += ep
@@ -26,7 +26,7 @@ def test_daugmented_step():
             u_plus = copy(u)
             u_minus = copy(u)
             
-            du_fd[:,i,:] = (Tu_plus - Tu_minus)/(2*ep)
+            du_fd[:,:,i] = (Tu_plus - Tu_minus).T/(2*ep)
         err[n] = linalg.norm(abs(du_fd - du))
     fig, ax = subplots(1,1)
     ax.loglog(eps,err,'o-')
