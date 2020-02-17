@@ -133,13 +133,15 @@ def plot_clvs():
             lw=2.0, color='black')
     return fig,ax
 
-def augmented_step(u, s=[0.,0.], n=1, m=1):
+def augmented_step(u, s=[0.,0.], n=1):
     '''
       Augmented cat map
       F(x,y,[d/dx],[d/dy]) = (step(x,y)[0], step(x,y)[1],
       Dstep(x,y)[:,0], Dstep(x,y)[:,1])
-      If d is the dimension of the phase space, (d+1)*d 
-      is the dimension of the augmented phase space
+      
+      The Cat map but on the tangent bundle of 
+      the 2-torus.
+
       n: number of timesteps
       m: number of initial conditions
       s[0] = abs(lambda), s[1] = alpha
@@ -150,6 +152,7 @@ def augmented_step(u, s=[0.,0.], n=1, m=1):
             /(1. - s[0]*cos(theta(phi))))
     d = 2
     d_aug = 2*d
+    m = u.shape[1]
     u_trj = empty((n+1,d_aug,m))
     u_trj[0] = u
     for i in range(n):
@@ -158,26 +161,26 @@ def augmented_step(u, s=[0.,0.], n=1, m=1):
         psix = Psi(x)
         u_trj[i+1,0] = (2*x + y + psix) % 1
         u_trj[i+1,1] = (x + y + psix) % 1
-        v = u_trj[i,d:]
-        v = reshape(v,(d,d,m)).T
+        v = u_trj[i,d:].T
+        v = v.reshape(m,d,1)
         v = matmul(dstep(vstack([x,y]),\
                 s,m), v)
-        u_trj[i+1,d:] = v.reshape((m,d*d)).T
+        u_trj[i+1,d:] = v.reshape((m,d)).T
        
     return u_trj
 
-def daugmented_step(u, s=[0.,0.], m=1):
+def daugmented_step(u, s=[0.,0.]):
     """
     Input info:
     m: number of initial conditions
     u.shape = (d_aug, m)
-    
+    d = 2*2
     Output:
     Jacobian matrices at each u
-    shape: mxd_augxd_aug
+    shape: d_augxd_augxm
     """
-
-    d_aug = u.shape[0]
+    d = u.shape[0]
+    m = u.shape[1]
     theta = lambda phi: 2*pi*phi - s[1]
     dtheta = 2*pi
     num_t = lambda phi:  s[0]*sin(theta(phi))
@@ -193,25 +196,28 @@ def daugmented_step(u, s=[0.,0.], m=1):
     dPsi = lambda phi: dPsi_dt(t(phi))*dt(phi)
    
     d2num_t = lambda phi: -s[0]*sin(theta(phi))*dtheta*dtheta
-    d2den_t = lambda phi: -s[0]*cos(theta(phi))*dtheta*dtheta
+    d2den_t = lambda phi: s[0]*cos(theta(phi))*dtheta*dtheta
     dden_dnum = lambda phi: dnum_t(phi)*dden_t(phi)
     d2t = lambda phi: -2.0*dden_dnum(phi)/(den_t(phi))**2.0 + \
             + d2num_t(phi)/den_t(phi) + \
             2*num_t(phi)*(dden_t(phi)**2.0)/(den_t(phi)**3.0) - \
             num_t(phi)/(den_t(phi)**2.0)*d2den_t(phi)
-    d2Psi = lambda phi: 1/pi*d2t(phi)/(1 + t(phi)*t(phi)) - \
-            1/pi*(dt(phi)**2.0)*t(phi)/(1 + t(phi)**2.0)**2.0
+    d2Psi_dx2 = lambda phi: 1/pi*d2t(phi)/(1 + t(phi)**2.0) - \
+            1/pi*(dt(phi)**2.0)*(2*t(phi))/(1 + t(phi)**2.0)**2.0
+
 
     dPsix = dPsi(u[0])
     du1_1 = 2.0 + dPsix
     du2_1 = 1.0 + dPsix
-  
-    dTu_u = ravel(vstack([du1_1, ones(m), du2_1, \
-            ones(m)]), order='F')
-    dTu_u = dTu_u.reshape([-1,2,2])
-    return dTu_u
+      
+    du1 = hstack([du1_1, ones(m), zeros(m), zeros(m)])
+    du2 = hstack([du2_1, ones(m), zeros(m), zeros(m)])
+
+    dv1_u1 = d2Psi_dx2(u[0])*u[2]
+    dv1 = hstack([dv1_u1, zeros(m), du1_1, ones(m)]) 
+    dv2 = hstack([dv1_u1, zeros(m), du2_1, ones(m)])
+
+    daug_step = vstack([du1, du2, dv1, dv2]).reshape(d,d,m)
+    return daug_step
 
 
-if __name__=="__main__":
-    u = rand(6,1)
-    print(augmented_step(u)) 
