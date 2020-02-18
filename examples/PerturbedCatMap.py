@@ -60,9 +60,10 @@ def inverse_step(u, s=[0.,0.], n=1):
     return u_trj
 
 
-def dstep(u, s=[0.,0.], m=1):
+def dstep(u, s=[0.,0.]):
     """
     Input info:
+    s: parameters, shape:2
     m: number of initial conditions
     u.shape = (d, m)
     
@@ -70,7 +71,7 @@ def dstep(u, s=[0.,0.], m=1):
     Jacobian matrices at each u
     shape: mxdxd
     """
-
+    m = u.shape[1]
     d = u.shape[0]
     theta = lambda phi: 2*pi*phi - s[1]
     dtheta = 2*pi
@@ -111,41 +112,27 @@ def clvs(u,Du,dim):
 
     d = u.shape[0]
     n = u.shape[1]
-
-    v = rand(d,dim)
-    v /= linalg.norm(v, axis=0)
-     
+    
     P = empty((n,d,dim))
+    P[0] = random.rand(d,dim)
+    P[0] /= linalg.norm(P[0], axis=0)
+
     R = empty((n,dim,dim))
     l = zeros(dim)
-    for i in range(n):
-        v = dot(Du[i],v)
-        P[i],R[i] = linalg.qr(v)
-        l += log(abs(diag(R[i])))/n
+    for i in range(n-1):
+        P[i+1] = dot(Du[i],P[i])
+        P[i+1],R[i+1] = linalg.qr(P[i+1])
+        l += log(abs(diag(R[i+1])))/(n-1)
 
     c = eye(dim)
-    for i in range(n-1,-1,-1):
+    for i in range(n-1,0,-1):
         P[i] = dot(P[i],c)
-        P[i] /= norm(P[i],axis=0)
-        c /= norm(c,axis=0)
+        P[i] /= linalg.norm(P[i],axis=0)
+        c /= linalg.norm(c,axis=0)
         c = linalg.solve(R[i], c)
 
     print('Lyapunov exponents: ', l)
     return P
-
-def plot_clvs():
-    fig, ax = subplots(1,1)
-    s = [0.7, 0.3]
-    eps = 5.e-2
-    u, v1, v2 = clvs(1000,s)
-    ax.plot(u[0], u[1], 'k.', ms=1)
-    ax.plot([u[0] - eps*v1[0], u[0] + eps*v1[0]],\
-            [u[1] - eps*v1[1], u[1] + eps*v1[1]],\
-            lw=2.0, color='red')
-    ax.plot([u[0] - eps*v2[0], u[0] + eps*v2[0]],\
-            [u[1] - eps*v2[1], u[1] + eps*v2[1]],\
-            lw=2.0, color='black')
-    return fig,ax
 
 def augmented_step(u, s=[0.,0.], n=1):
     '''
@@ -178,7 +165,7 @@ def augmented_step(u, s=[0.,0.], n=1):
         v = u_trj[i,d:].T
         v = v.reshape(m,d,1)
         v = matmul(dstep(vstack([x,y]),\
-                s,m), v)
+                s), v)
         u_trj[i+1,d:] = v.reshape((m,d)).T
        
     return u_trj
