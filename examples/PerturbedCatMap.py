@@ -28,13 +28,19 @@ def step(u, s=[0.,0.], n=1):
         u_trj[i+1,0] = (2*x + y + psix) % 1
         u_trj[i+1,1] = (x + y + psix) % 1
     return u_trj
-def inverse_step(u, s=[0.,0.], n=1, m=1):
-    """
-    n: number of timesteps
-    m: number of initial conditions
-    s[0] = abs(lambda), s[1] = alpha
-    output size: (n+1)xdxm
-    """
+def inverse_step(u, s=[0.,0.], n=1):
+    '''
+    Inputs:
+        u: array of initial conditions, shape:dxm
+        s: parameter array, shape:2
+        n: number of timesteps
+        m: number of initial conditions
+        s[0] = abs(lambda), s[1] = alpha
+    Output:
+        primal trajectory, shape: (n+1)xdxm
+    '''
+    d = u.shape[0]
+    m = u.shape[1]
     #Psi1 = lambda phi: (1/pi)*arctan(-s[0]*sin(2*pi*phi +s[1])\
      #       /(1. - s[0]*cos(2*pi*phi + s[1])))
     Psi2 = lambda phi: (1/pi)*arctan(s[0]*sin(2*pi*phi-s[1])\
