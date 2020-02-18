@@ -30,7 +30,7 @@ def test_daugmented_step():
         err[n] = linalg.norm(abs(du_fd - du))
     fig, ax = subplots(1,1)
     ax.loglog(eps,err,'o-')
-    #return err
+    return err
 
 
 

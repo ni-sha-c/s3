@@ -1,11 +1,19 @@
 from numpy import *
 import harminv
 from scipy import interpolate
-def step(u, s=[0.,0.], n=1, m=1):
-    # n: number of timesteps
-    # m: number of initial conditions
-    # s[0] = abs(lambda), s[1] = alpha
-    # output size: (n+1)xdxm
+def step(u, s=[0.,0.], n=1):
+    '''
+    Inputs:
+        u: array of initial conditions, shape:dxm
+        s: parameter array, shape:2
+        n: number of timesteps
+        m: number of initial conditions
+        s[0] = abs(lambda), s[1] = alpha
+    Output:
+        primal trajectory, shape: (n+1)xdxm
+    '''
+    d = u.shape[0]
+    m = u.shape[1]
     theta = lambda phi: 2*pi*phi - s[1]
     Psi = lambda phi: (1/pi)*arctan(s[0]*sin(theta(phi))\
             /(1. - s[0]*cos(theta(phi))))
