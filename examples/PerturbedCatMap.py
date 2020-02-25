@@ -114,6 +114,8 @@ def clvs(u,Du,dim):
     n = u.shape[1]
     
     P = empty((n,d,dim))
+    #P[0] = vstack([random.rand(2,dim),\
+    #        zeros((2,dim))])
     P[0] = random.rand(d,dim)
     P[0] /= linalg.norm(P[0], axis=0)
 
@@ -123,7 +125,6 @@ def clvs(u,Du,dim):
         P[i+1] = dot(Du[i],P[i])
         P[i+1],R[i+1] = linalg.qr(P[i+1])
         l += log(abs(diag(R[i+1])))/(n-1)
-
     c = eye(dim)
     for i in range(n-1,0,-1):
         P[i] = dot(P[i],c)
@@ -131,6 +132,7 @@ def clvs(u,Du,dim):
         c /= linalg.norm(c,axis=0)
         c = linalg.solve(R[i], c)
 
+    #stop
     print('Lyapunov exponents: ', l)
     return P
 
@@ -178,7 +180,7 @@ def daugmented_step(u, s=[0.,0.]):
     d = 2*2
     Output:
     Jacobian matrices at each u
-    shape: d_augxd_augxm
+    shape: mxd_augxd_aug
     """
     d = u.shape[0]
     m = u.shape[1]
@@ -212,7 +214,6 @@ def daugmented_step(u, s=[0.,0.]):
     du2_1 = 1.0 + dPsix
       
     dv1_u1 = d2Psi_dx2(u[0])*u[2]
-    
     d_u1 = hstack([du1_1, du2_1, dv1_u1, dv1_u1])
     d_u2 = hstack([ones(m), ones(m), zeros(m), zeros(m)])
 

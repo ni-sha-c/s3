@@ -56,17 +56,19 @@ def plot_clvs():
             lw=2.0, color='black')
     return fig,ax
 
-def compare_clvs():
+#def compare_clvs():
+if __name__=="__main__":
     fig, ax = subplots(1,1)
     s = [0.7,0.3]
-    eps = 5.e-2
+    #s = zeros(2)
+    eps = 4.e-2
     d = 2
     u0 = random.rand(d,1)
-    n = 1000
+    n = 500
     u = step(u0,s,n) #shape: (n+1)xdx1
     u = u[1:].T[0] # shape:dxn
     du = dstep(u,s) #shape:nxdxd
-    P = clvs(u,du,d).T #shape:nxdxd
+    P = clvs(u,du,2).T #shape:nxdxd
     v1 = P[0]
     v2 = P[1]
     ax.plot(u[0], u[1], 'k.', ms=1)
@@ -76,5 +78,5 @@ def compare_clvs():
     ax.plot([u[0] - eps*v2[0], u[0] + eps*v2[0]],\
             [u[1] - eps*v2[1], u[1] + eps*v2[1]],\
             lw=2.0, color='black')
-    return fig,ax
+    #return fig,ax
 
