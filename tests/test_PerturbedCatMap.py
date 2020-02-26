@@ -238,8 +238,7 @@ def plot_clv_gradients():
     ax[1,1].set_title('$\partial_2 V^2_1$',fontsize=24)
     return fig, ax
 
-if __name__=="__main__":
-#def plot_clv_directional_derivatives():
+def plot_clv_directional_derivatives():
     s = [0.7,0.3]
     #s = zeros(2)
     eps = 4.e-2
@@ -334,5 +333,116 @@ if __name__=="__main__":
     ax[1,0].set_title('$D V^2_2\cdot V^1$',fontsize=24)
 
     ax[1,1].set_title('$D V^2_2 \cdot V^2$',fontsize=24)
+    return fig, ax
+
+if __name__=="__main__":
+#def plot_clv_directional_derivatives():
+    s = [0.7,0.3]
+    #s = zeros(2)
+    eps = 4.e-2
+    d = 2
+    u0 = random.rand(d,1)
+    n = 30000
+    u = step(u0,s,n) #shape: (n+1)xdx1
+    u = u[1:].T[0] # shape:dxn
+    du = dstep(u,s) #shape:nxdxd
+    P = clvs(u,du,2).T #shape:nxdxd
+    v1 = P[0]
+    v2 = P[1]
+    n_grid = 100
+    x_x = linspace(0.,1.,n_grid)
+    x_grid, y_grid = meshgrid(x_x, x_x)
+    f = LinearNDInterpolator(u.T[10:],\
+            v1[0,10:],)
+    v1x = f(x_grid, y_grid).reshape(\
+            n_grid,n_grid)
+    f = LinearNDInterpolator(u.T[10:],\
+            v1[1,10:],)
+    v1y = f(x_grid, y_grid).reshape(\
+            n_grid,n_grid)
+    f = LinearNDInterpolator(u.T[10:],\
+            v2[0,10:],)
+    v2x = f(x_grid, y_grid).reshape(\
+            n_grid,n_grid)
+    f = LinearNDInterpolator(u.T[10:],\
+            v2[1,10:],)
+    v2y = f(x_grid, y_grid).reshape(\
+            n_grid,n_grid)
+
+    dx = x_x[1]
+    #calculate x partial derivatives
+    dv1x_dx = (hstack([v1x[:,1:],\
+            v1x[:,0].reshape(-1,1)]) - \
+            hstack([v1x[:,-1].reshape(-1,1),\
+            v1x[:,0:-1]]))/(2*dx)
+    dv1y_dx = (hstack([v1y[:,1:],\
+            v1y[:,0].reshape(-1,1)]) - \
+            hstack([v1y[:,-1].reshape(-1,1),\
+            v1y[:,0:-1]]))/(2*dx)
+    dv2x_dx = (hstack([v2x[:,1:],\
+            v2x[:,0].reshape(-1,1)]) - \
+            hstack([v2x[:,-1].reshape(-1,1),\
+            v2x[:,0:-1]]))/(2*dx)
+    dv2y_dx = (hstack([v2y[:,1:],\
+            v2y[:,0].reshape(-1,1)]) - \
+            hstack([v2y[:,-1].reshape(-1,1),\
+            v2y[:,0:-1]]))/(2*dx)
+
+    #calculate y partial derivatives
+    dv1x_dy = (vstack([v1x[1:,:],\
+            v1x[0,:].reshape(1,-1)]) - \
+            vstack([v1x[-1,:].reshape(1,-1),\
+            v1x[0:-1,:]]))/(2*dx)
+    dv2x_dy = (vstack([v2x[1:,:],\
+            v2x[0,:].reshape(1,-1)]) - \
+            vstack([v2x[-1,:].reshape(1,-1),\
+            v2x[0:-1,:]]))/(2*dx)
+    dv1y_dy = (vstack([v1y[1:,:],\
+            v1y[0,:].reshape(1,-1)]) - \
+            vstack([v1y[-1,:].reshape(1,-1),\
+            v1y[0:-1,:]]))/(2*dx)
+    dv2y_dy = (vstack([v2y[1:,:],\
+                    v2y[0,:].reshape(1,-1)]) - \
+                    vstack([v2y[-1,:].reshape(1,-1),\
+                    v2y[0:-1,:]]))/(2*dx)
+
+    # calculate directional derivatives
+    dv1x_dv1 = dv1x_dx*v1x + dv1x_dy*v1y 
+    dv1y_dv1 = dv1y_dx*v1x + dv1y_dy*v1y
+    dv2x_dv2 = dv2x_dx*v2x + dv2x_dy*v2y 
+    dv2y_dv2 = dv2y_dx*v2x + dv2y_dy*v2y
+
+    #normalize directional derivatives (only getting 
+    # direction of the directional derivatives)
+    norm_dv1_dv1 = sqrt(dv1x_dv1*dv1x_dv1 + dv1y_dv1*dv1y_dv1)
+    norm_dv2_dv2 = sqrt(dv2x_dv2*dv2x_dv2 + dv2y_dv2*dv2y_dv2)
+    dv1x_dv1 /= norm_dv1_dv1
+    dv1y_dv1 /= norm_dv1_dv1
+    dv2x_dv2 /= norm_dv2_dv2
+    dv2y_dv2 /= norm_dv2_dv2
+
+    #flatten the grid
+    x_grid = x_grid.flatten()
+    y_grid = y_grid.flatten()
+    dv1x_dv1 = dv1x_dv1.flatten()
+    dv1y_dv1 = dv1y_dv1.flatten()
+    dv2x_dv2 = dv2x_dv2.flatten()
+    dv2y_dv2 = dv2y_dv2.flatten()
+
+    # plot
+    eps = 2.e-2
+    fig, ax = subplots(1,2)
+    ax[0].plot([x_grid - eps*dv1x_dv1, x_grid + eps*dv1x_dv1],\
+            [y_grid - eps*dv1y_dv1, y_grid + eps*dv1y_dv1],\
+            lw=2.0, color='red')
+    ax[1].plot([x_grid - eps*dv2x_dv2, x_grid + eps*dv2x_dv2],\
+            [y_grid - eps*dv2y_dv2, y_grid + eps*dv2y_dv2],\
+            lw=2.0, color='black')
+    
+    
+    ax[0].set_title('$D V^1\cdot V^1$',fontsize=24)
+
+    ax[1].set_title('$D V^1\cdot V^2$',fontsize=24)
+
     #return fig, ax
 
