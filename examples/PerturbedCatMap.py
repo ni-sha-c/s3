@@ -1,5 +1,4 @@
 from numpy import *
-import harminv
 from scipy import interpolate
 def step(u, s=[0.,0.], n=1):
     '''
@@ -94,6 +93,35 @@ def dstep(u, s=[0.,0.]):
             ones(m)]), order='F')
     dTu_u = dTu_u.reshape([-1,2,2])
     return dTu_u
+def lyapunov_exponents(u,Du,dim):
+    """
+    Inputs:
+    u: primal trajectory, shape:dxn
+    Du: Jacobian trajectory, shape:nxdxd
+    dim: number of LEs to calculate
+
+    Outputs: 
+    L: Lyapunov exponents, shape:(dim,)
+
+    """
+
+    d = u.shape[0]
+    n = u.shape[1]
+    
+    P = empty((n,d,dim))
+    #P[0] = vstack([random.rand(2,dim),\
+    #        zeros((2,dim))])
+    P[0] = random.rand(d,dim)
+    P[0] /= linalg.norm(P[0], axis=0)
+
+    R = empty((n,dim,dim))
+    l = zeros(dim)
+    for i in range(n-1):
+        P[i+1] = dot(Du[i],P[i])
+        P[i+1],R[i+1] = linalg.qr(P[i+1])
+        l += log(abs(diag(R[i+1])))/(n-1)
+
+    return l
 
 def clvs(u,Du,dim):
     """
