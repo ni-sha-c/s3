@@ -33,7 +33,41 @@ def plot_density():
     ax[1].yaxis.set_tick_params(labelsize=24)
     return fig,ax
 
+def sensitivity_of_les():
+    # Vary lambda
+    d = 2
+    n_maps = 100
+    s = [0.7,0.3]
+    u0 = random.rand(d,1)
+    n = 10000
+    n_maps = 100
 
+    lamb = linspace(0.,1.,n_maps)
+    alph = linspace(0.,1.,n_maps)
+    les = empty((n_maps,n_maps,d))
+    for i in range(n_maps):
+        s[0] = lamb[i]
+        for j in range(n_maps):
+            s[1] = alph[j]
+            u = step(u0,s,n) #shape: (n+1)xdx1
+            u = u[1:].T[0] # shape:dxn
+            du = dstep(u,s) #shape:nxdxd
+            les[i,j] = lyapunov_exponents(u,du,d) #shape:d
+    les = les.T[0]
+    fig, ax = subplots(1,2)
+    ax[0].plot(lamb, les[:,::10], 'o-', ms=5, lw=2.0)
+    ax[1].plot(alph, les.T[:,::10], 'o-', ms=2, lw=2.0)
+    ax[0].set_xlabel('s amplitude', fontsize=24)
+    ax[1].set_xlabel('s angle',fontsize=24)
+    ax[0].set_ylabel(r'$\lambda^1$', fontsize=24)
+    ax[1].set_ylabel(r'$\lambda^1$', fontsize=24)
+    ax[0].xaxis.set_tick_params(labelsize=24)
+    ax[0].yaxis.set_tick_params(labelsize=24)
+    ax[1].xaxis.set_tick_params(labelsize=24)
+    ax[1].yaxis.set_tick_params(labelsize=24)
+    return fig,ax
+
+ 
 def plot_clvs():
     fig, ax = subplots(1,2)
     s = [0.9,0.4]
