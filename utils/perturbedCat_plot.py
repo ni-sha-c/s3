@@ -32,40 +32,52 @@ def plot_density():
     ax[1].xaxis.set_tick_params(labelsize=24)
     ax[1].yaxis.set_tick_params(labelsize=24)
     return fig,ax
-
-def sensitivity_of_les():
+if __name__=="__main__":
+#def sensitivity_of_les():
     # Vary lambda
     d = 2
-    n_maps = 100
     s = [0.7,0.3]
     u0 = random.rand(d,1)
-    n = 10000
-    n_maps = 100
-
-    lamb = linspace(0.,1.,n_maps)
-    alph = linspace(0.,1.,n_maps)
-    les = empty((n_maps,n_maps,d))
-    for i in range(n_maps):
+    n = 1000
+    n_maps_lamb = 30
+    n_maps_alph = 25
+    lamb = linspace(0.,1.,n_maps_lamb)
+    alph = linspace(0.,1.,n_maps_alph)
+    les = empty((n_maps_lamb,n_maps_alph,d))
+    for i in range(n_maps_lamb):
         s[0] = lamb[i]
-        for j in range(n_maps):
+        print(i, s[0])
+        for j in range(n_maps_alph):
             s[1] = alph[j]
             u = step(u0,s,n) #shape: (n+1)xdx1
             u = u[1:].T[0] # shape:dxn
             du = dstep(u,s) #shape:nxdxd
             les[i,j] = lyapunov_exponents(u,du,d) #shape:d
     les = les.T[0]
+    #Plot LEs at various parameter values
     fig, ax = subplots(1,2)
-    ax[0].plot(lamb, les[:,::10], 'o-', ms=5, lw=2.0)
-    ax[1].plot(alph, les.T[:,::10], 'o-', ms=2, lw=2.0)
-    ax[0].set_xlabel('s amplitude', fontsize=24)
-    ax[1].set_xlabel('s angle',fontsize=24)
+    n_plots = 5
+    colors = cm.get_cmap('viridis', n_plots)
+    lamb_ind = range(0,n_maps_lamb,n_plots)
+    n_lamb_plots = n_maps_lamb//n_plots 
+    for i, lamb_ind in enumerate(lamb_ind):
+        color = colors(i/n_lamb_plots)
+        text_loc = n_maps_alph//2
+        ax[0].plot(alph, les[:,lamb_ind], 'o-', ms=5, lw=2.0, color=color)
+        ax[0].text(alph[text_loc] - 0.1, les[:,lamb_ind][text_loc] - 0.01, "s = {0:.2f}".format(lamb[lamb_ind]), size=24, \
+                color=color)
+    '''
+        ax[1].plot(lamb, les[6*i], 'o-', ms=2, lw=2.0)
+    '''
+    ax[0].set_xlabel('s angle', fontsize=24)
+    ax[1].set_xlabel('s magnitude',fontsize=24)
     ax[0].set_ylabel(r'$\lambda^1$', fontsize=24)
     ax[1].set_ylabel(r'$\lambda^1$', fontsize=24)
     ax[0].xaxis.set_tick_params(labelsize=24)
     ax[0].yaxis.set_tick_params(labelsize=24)
     ax[1].xaxis.set_tick_params(labelsize=24)
     ax[1].yaxis.set_tick_params(labelsize=24)
-    return fig,ax
+    #return fig,ax
 
  
 def plot_clvs():
