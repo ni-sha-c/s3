@@ -57,14 +57,22 @@ if __name__=="__main__":
     #Plot LEs at various parameter values
     fig, ax = subplots(1,2)
     n_plots = 5
-    colors = cm.get_cmap('viridis', n_plots)
+    colors = cm.get_cmap('coolwarm', n_plots)
     lamb_ind = range(0,n_maps_lamb,n_plots)
     n_lamb_plots = n_maps_lamb//n_plots 
     for i, lamb_ind in enumerate(lamb_ind):
         color = colors(i/n_lamb_plots)
         text_loc = n_maps_alph//2
         ax[0].plot(alph, les[:,lamb_ind], 'o-', ms=5, lw=2.0, color=color)
-        ax[0].text(alph[text_loc] - 0.1, les[:,lamb_ind][text_loc] - 0.01, "s = {0:.2f}".format(lamb[lamb_ind]), size=24, \
+        if i == 1:
+            ax[0].text(alph[text_loc] - 0.01, les[:,lamb_ind][text_loc] - 0.005, "s = {0:.2f}".format(lamb[lamb_ind]), size=24, \
+                color=color)
+        elif i==0:
+            ax[0].text(alph[text_loc] - 0.01, les[:,lamb_ind][text_loc] + 0.005, "s = {0:.2f}".format(lamb[lamb_ind]), size=24, \
+                color=color)
+
+        else:
+            ax[0].text(alph[text_loc] - 0.01, les[:,lamb_ind][text_loc] - 0.03, "s = {0:.2f}".format(lamb[lamb_ind]), size=24, \
                 color=color)
     '''
         ax[1].plot(lamb, les[6*i], 'o-', ms=2, lw=2.0)
