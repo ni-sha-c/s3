@@ -32,8 +32,8 @@ def plot_density():
     ax[1].xaxis.set_tick_params(labelsize=24)
     ax[1].yaxis.set_tick_params(labelsize=24)
     return fig,ax
-if __name__=="__main__":
-#def sensitivity_of_les():
+#if __name__=="__main__":
+def sensitivity_of_les():
     # Vary lambda
     d = 2
     s = [0.7,0.3]
@@ -77,7 +77,7 @@ if __name__=="__main__":
     ax[0].yaxis.set_tick_params(labelsize=24)
     ax[1].xaxis.set_tick_params(labelsize=24)
     ax[1].yaxis.set_tick_params(labelsize=24)
-    #return fig,ax
+    return fig,ax
 
  
 def plot_clvs():
