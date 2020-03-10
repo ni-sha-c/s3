@@ -32,6 +32,7 @@ def plot_density():
     ax[1].xaxis.set_tick_params(labelsize=24)
     ax[1].yaxis.set_tick_params(labelsize=24)
     return fig,ax
+#if __name__=="__main__":
 def sensitivity_of_les():
     # Vary lambda
     d = 2
@@ -86,8 +87,8 @@ def sensitivity_of_les():
     ax[1].xaxis.set_tick_params(labelsize=24)
     ax[1].yaxis.set_tick_params(labelsize=24)
     return fig,ax
-if __name__=="__main__":
-#def unstable_manifold():
+#if __name__=="__main__":
+def unstable_manifold():
     """
     Constructs a piece of 
     an unstable manifold
@@ -114,8 +115,6 @@ if __name__=="__main__":
     v1_fixed = clvs_fixed[:,1]
     upert = u_fixed + 1.e-2*v0_fixed
     u = inverse_step(upert,s,10)
-
-
 
 def plot_clvs():
     fig, ax = subplots(1,2)
@@ -525,5 +524,5 @@ def plot_clv_directional_derivatives():
 
     ax[1].set_title('$D V^1\cdot V^2$',fontsize=24)
 
-    #return fig, ax
+    return fig, ax
 
