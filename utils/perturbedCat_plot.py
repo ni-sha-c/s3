@@ -32,22 +32,20 @@ def plot_density():
     ax[1].xaxis.set_tick_params(labelsize=24)
     ax[1].yaxis.set_tick_params(labelsize=24)
     return fig,ax
-if __name__=="__main__":
-#def sensitivity_of_les():
+def sensitivity_of_les():
     # Vary lambda
     d = 2
     s = [0.7,0.3]
     u0 = random.rand(d,1)
     n = 1000
-    n_maps_lamb = 30
-    n_maps_alph = 25
-    lamb = linspace(0.,1.,n_maps_lamb)
-    alph = linspace(0.,1.,n_maps_alph)
-    les = empty((n_maps_lamb,n_maps_alph,d))
-    for i in range(n_maps_lamb):
+    n_maps = 30
+    lamb = linspace(0.,1.,n_maps)
+    alph = linspace(0.,1.,n_maps)
+    les = empty((n_maps,n_maps,d))
+    for i in range(n_maps):
         s[0] = lamb[i]
         print(i, s[0])
-        for j in range(n_maps_alph):
+        for j in range(n_maps):
             s[1] = alph[j]
             u = step(u0,s,n) #shape: (n+1)xdx1
             u = u[1:].T[0] # shape:dxn
@@ -58,25 +56,27 @@ if __name__=="__main__":
     fig, ax = subplots(1,2)
     n_plots = 5
     colors = cm.get_cmap('coolwarm', n_plots)
-    lamb_ind = range(0,n_maps_lamb,n_plots)
-    n_lamb_plots = n_maps_lamb//n_plots 
-    for i, lamb_ind in enumerate(lamb_ind):
+    ind = range(0,n_maps,n_plots)
+    n_lamb_plots = n_maps//n_plots 
+    for i, lamb_ind in enumerate(ind):
         color = colors(i/n_lamb_plots)
         text_loc = n_maps_alph//2
         ax[0].plot(alph, les[:,lamb_ind], 'o-', ms=5, lw=2.0, color=color)
+        
+        ax[1].plot(lamb, les[:,lamb_ind], 'o-', ms=5, lw=2.0, color=color)
         if i == 1:
             ax[0].text(alph[text_loc] - 0.01, les[:,lamb_ind][text_loc] - 0.005, "s = {0:.2f}".format(lamb[lamb_ind]), size=24, \
                 color=color)
+            ax[1].text(alph[text_loc] - 0.01, les[:,lamb_ind][text_loc] - 0.005, "s = {0:.2f}".format(lamb[lamb_ind]), size=24, \
+                color=color)
+
         elif i==0:
             ax[0].text(alph[text_loc] - 0.01, les[:,lamb_ind][text_loc] + 0.005, "s = {0:.2f}".format(lamb[lamb_ind]), size=24, \
                 color=color)
 
         else:
-            ax[0].text(alph[text_loc] - 0.01, les[:,lamb_ind][text_loc] - 0.03, "s = {0:.2f}".format(lamb[lamb_ind]), size=24, \
+            ax[0].text(alph[text_loc] - 0.01, les[:,lamb_ind][text_loc] - 0.015, "s = {0:.2f}".format(lamb[lamb_ind]), size=24, \
                 color=color)
-    '''
-        ax[1].plot(lamb, les[6*i], 'o-', ms=2, lw=2.0)
-    '''
     ax[0].set_xlabel('s angle', fontsize=24)
     ax[1].set_xlabel('s magnitude',fontsize=24)
     ax[0].set_ylabel(r'$\lambda^1$', fontsize=24)
@@ -85,9 +85,38 @@ if __name__=="__main__":
     ax[0].yaxis.set_tick_params(labelsize=24)
     ax[1].xaxis.set_tick_params(labelsize=24)
     ax[1].yaxis.set_tick_params(labelsize=24)
-    #return fig,ax
+    return fig,ax
+if __name__=="__main__":
+#def unstable_manifold():
+    """
+    Constructs a piece of 
+    an unstable manifold
+    """
 
- 
+    d = 2
+    s = [0.7,0.3]
+    s_c = s[0]*exp(1j*s[1])
+    s_cc = s_c.conjugate()
+    z1_fixed = (1.0 + s_c)/\
+            (1 + s_cc)
+    z2_fixed = 1.0
+    u0_fixed = 1/(2*pi)*arctan(\
+            z1_fixed.imag/\
+            z1_fixed.real) % 1
+    u1_fixed = 1/(2*pi)*arctan(\
+            z2_fixed.imag/\
+            z2_fixed.real) % 1
+    u_fixed = array([u0_fixed,\
+            u1_fixed]).reshape(2,1)
+    du_fixed = dstep(u_fixed,s)[0]
+    l_fixed, clvs_fixed = eig(du_fixed)
+    v0_fixed = clvs_fixed[:,0].reshape(2,1)
+    v1_fixed = clvs_fixed[:,1]
+    upert = u_fixed + 1.e-2*v0_fixed
+    u = inverse_step(upert,s,10)
+
+
+
 def plot_clvs():
     fig, ax = subplots(1,2)
     s = [0.9,0.4]

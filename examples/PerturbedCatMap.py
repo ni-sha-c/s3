@@ -56,6 +56,11 @@ def inverse_step(u, s=[0.,0.], n=1):
         psi2 = Psi2(x-y)
         u_trj[i+1,0] = (x - y) % 1
         u_trj[i+1,1] = (-x + 2*y - psi2) % 1
+        if u_trj[i+1,0]==1:
+            u_trj[i+1,0]=0.
+        if u_trj[i+1,1]==1:
+            u_trj[i+1,1]=0.
+        print(-x - psi2)
     return u_trj
 
 
