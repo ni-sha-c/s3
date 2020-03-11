@@ -87,8 +87,8 @@ def sensitivity_of_les():
     ax[1].xaxis.set_tick_params(labelsize=24)
     ax[1].yaxis.set_tick_params(labelsize=24)
     return fig,ax
-#if __name__=="__main__":
-def unstable_manifold():
+if __name__=="__main__":
+#def unstable_manifold():
     """
     Constructs a piece of 
     an unstable manifold
