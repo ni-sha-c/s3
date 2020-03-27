@@ -87,11 +87,10 @@ def sensitivity_of_les():
     ax[1].xaxis.set_tick_params(labelsize=24)
     ax[1].yaxis.set_tick_params(labelsize=24)
     return fig,ax
-if __name__=="__main__":
-#def unstable_manifold():
+
+def fixed_point():
     """
-    Constructs a piece of 
-    an unstable manifold
+    Fixed point
     """
 
     d = 2
@@ -115,6 +114,100 @@ if __name__=="__main__":
     v1_fixed = clvs_fixed[:,1]
     upert = u_fixed + 1.e-2*v0_fixed
     u = inverse_step(upert,s,10)
+
+if __name__=="__main__":
+#def clv_along_clv():
+    """
+    Differentiating along CLV
+    """
+    u = rand(2).reshape(2,1)
+    n = 100000
+    s = [0.75, 0.99]
+    #s = zeros(2)
+    u_trj = step(u, s, n).T[0] 
+    du_trj = dstep(u_trj, s)
+    clv_trj = clvs(u_trj, du_trj, 2).T 
+    n_origin = 50
+    u_trj = u_trj.T
+
+    origin = u_trj[n_origin]
+    dist_origin = linalg.norm(u_trj - origin, axis=1)
+    
+
+    clv1_trj = clv_trj[0].T
+    clv2_trj = clv_trj[1].T
+
+
+    x1_axis = clv1_trj[n_origin]
+    x2_axis = clv2_trj[n_origin]
+    
+
+   
+    x1_perp = rand(2)
+    x1_perp /= linalg.norm(x1_perp)
+    x1_perp -= dot(x1_perp, x1_axis)*x1_axis
+    c = dot(x2_axis, x1_perp)
+    clv1_x2 = dot(clv1_trj, x1_perp)/c
+    clv2_x2 = dot(clv2_trj, x1_perp)/c
+    
+
+    v_trj = u_trj - origin
+    v_trj /= norm(v_trj)
+    v_x2 = dot(v_trj, x1_perp)/c
+    
+    x2_perp = rand(2)
+    x2_perp /= linalg.norm(x2_perp)
+    x2_perp -= dot(x2_perp, x2_axis)*x2_axis
+    c = dot(x1_axis, x2_perp)
+    clv1_x1 = dot(clv1_trj, x2_perp)/c
+    clv2_x1 = dot(clv2_trj, x2_perp)/c
+    
+    v_x1 = dot(v_trj, x2_perp)/c
+
+    #Plots
+    fig, ax = subplots(1,2)
+    ax[0].xaxis.set_tick_params(labelsize=30)
+    ax[1].xaxis.set_tick_params(labelsize=30)
+    ax[0].yaxis.set_tick_params(labelsize=30)
+    ax[1].yaxis.set_tick_params(labelsize=30)
+    grid(True)    
+   
+    delta = 0.1
+    w_x1 = dot(v_trj, x1_perp)
+    w_x2 = dot(v_trj, x2_axis)
+    condlist = (dist_origin < delta) &(abs(w_x1) < 1.e-6) 
+    neighbours = u_trj[condlist]
+    v_x1 = v_x1[condlist]
+    clv1_trj_x = clv1_trj[condlist][:,0]
+    clv1_x1 = clv1_x1[condlist]
+    dist = dist_origin[condlist]
+    ax[0].plot(v_x1, clv1_trj_x, 'k.', ms=20) 
+    ax[1].plot(v_x1, clv1_x1, 'r.', ms=20)
+
+    '''
+    n_grid = 50
+    x_x = linspace(0.,1.,n_grid)
+    x_grid, y_grid = meshgrid(x_x, x_x)
+    x1_trj = u_trj[:,0] - origin[0]
+    x2_trj = u_trj[:,1] - origin[1]
+    f1 = interp2d(x1_trj, x2_trj, angle_1)
+    f2 = interp2d(x1_trj, x2_trj, angle_2)
+
+    a1 = f1(x_x, x_x).reshape(\
+            n_grid,n_grid)
+
+    a2 = f2(x_x, x_x).reshape(\
+            n_grid,n_grid)
+    plot1 = ax[0].contourf(x_grid, x_grid, a1,20,vmin=-1.0,vmax=1.0)
+    plot2 = ax[1].contourf(x_grid, x_grid, a2,20,vmin=-1.0,vmax=1.0)
+    '''
+
+    #for i in range(n_origin,n):
+     #   ax.plot(clv1_x1[i], clv1_x2[i], 'r.', label='1st CLV', ms=10.0)
+        #ax.plot(clv2_x1[i], clv2_x2[i], 'b.', label='2nd CLV', ms=10.0)
+        #pause(0.001)
+
+
 
 def plot_clvs():
     fig, ax = subplots(1,2)
