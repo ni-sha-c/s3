@@ -116,7 +116,68 @@ def fixed_point():
     u = inverse_step(upert,s,10)
 
 if __name__=="__main__":
-#def clv_along_clv():
+    """
+    G(v)(u) := Dvarphi(u) v/||Dvarphi(u) v||
+    This function computes DG(V^i(u))(u), 
+    the derivative of G at the CLVs.
+    """
+    u = rand(2).reshape(2,1)
+    n = 1000
+    #s = [0.75, 0.99]
+    s = zeros(2)
+    u_trj = step(u, s, n).T[0] 
+    du_trj = dstep(u_trj, s)
+    clv_trj = clvs(u_trj, du_trj, 2) 
+    n_origin = 50
+    u_trj = u_trj.T
+
+    eps = 1.e-6
+    x_pert = zeros(2)
+    y_pert = zeros(2)
+    x_pert[0] += eps
+    y_pert[1] += eps 
+    for i in range(n):
+ 
+        v0 = clv_trj[i,0]
+        v1 = clv_trj[i,1]
+        A = du_trj[i] 
+        
+        G_plus_0_x = dot(A, v0 + x_pert)
+        G_plus_0_x /= norm(G_plus_0_x)
+
+        G_plus_0_y = dot(A, v0 + y_pert)
+        G_plus_0_y /= norm(G_plus_0_y)
+
+        G_minus_0_x = dot(A, v0 - x_pert)
+        G_minus_0_x /= norm(G_minus_0_x)
+
+        G_minus_0_y = dot(A, v0 - y_pert)
+        G_minus_0_y /= norm(G_minus_0_y)
+
+ 
+        G_plus_1_x = dot(A, v1 + x_pert)
+        G_plus_1_x /= norm(G_plus_1_x)
+
+        G_plus_1_y = dot(A, v1 + y_pert)
+        G_plus_1_y /= norm(G_plus_1_y)
+
+        G_minus_1_x = dot(A, v1 - x_pert)
+        G_minus_1_x /= norm(G_minus_1_x)
+
+        G_minus_1_y = dot(A, v1 - y_pert)
+        G_minus_1_y /= norm(G_minus_1_y)
+
+
+        dG_0 = dot(vstack([G_plus_0_x - G_minus_0_x, \
+                G_plus_0_y - G_minus_0_y])/eps, v0) 
+
+        dG_1 = dot(vstack([G_plus_1_x - G_minus_1_x, \
+                G_plus_1_y - G_minus_1_y])/eps, v1) 
+
+        #fig, ax = subplots(1,2)
+        
+
+def clv_along_clv():
     """
     Differentiating along CLV
     """
@@ -163,6 +224,15 @@ if __name__=="__main__":
     clv2_x1 = dot(clv2_trj, x2_perp)/c
     
     v_x1 = dot(v_trj, x2_perp)/c
+    assert(allclose(v_x1.reshape(-1,1)*x1_axis + \
+            v_x2.reshape(-1,1)*x2_axis, \
+            v_trj))
+    assert(allclose(clv1_x1.reshape(-1,1)*x1_axis + \
+            clv1_x2.reshape(-1,1)*x2_axis,\
+            clv1_trj))
+    assert(allclose(clv2_x1.reshape(-1,1)*x1_axis + \
+            clv2_x2.reshape(-1,1)*x2_axis, \
+            clv2_trj))
 
     #Plots
     fig, ax = subplots(1,2)
