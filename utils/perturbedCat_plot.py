@@ -122,60 +122,197 @@ if __name__=="__main__":
     the derivative of G at the CLVs.
     """
     u = rand(2).reshape(2,1)
+    n = 10000
+    #s = [0.75, 0.99]
+    s = zeros(2)
+    u_trj = step(u, s, n).T[0] 
+    du_trj = dstep(u_trj, s)
+    clv_trj = clvs(u_trj, du_trj, 2) 
+    u_trj = u_trj.T
+
+    n = n+1
+    n_eps = 4
+    dG_0 = empty((n_eps,n,2))
+    dG_1 = empty((n_eps,n,2))
+    eps = 1.e-2
+    v0 = rand(2)
+    v1 = rand(2)
+    for k in range(n_eps):
+        eps *= 1.e-1
+        x_pert = zeros(2)
+        y_pert = zeros(2)
+        x_pert[0] += eps
+        y_pert[1] += eps 
+
+        for i in range(n):
+     
+            #v0 = clv_trj[i,0]
+            #v1 = clv_trj[i,1]
+
+            A = du_trj[i] 
+            
+            G_plus_0_x = dot(A, v0 + x_pert)
+            #G_plus_0_x /= norm(G_plus_0_x)
+
+            G_plus_0_y = dot(A, v0 + y_pert)
+            #G_plus_0_y /= norm(G_plus_0_y)
+
+            G_minus_0_x = dot(A, v0 - x_pert)
+            #G_minus_0_x /= norm(G_minus_0_x)
+
+            G_minus_0_y = dot(A, v0 - y_pert)
+            #G_minus_0_y /= norm(G_minus_0_y)
+
+     
+            G_plus_1_x = dot(A, v1 + x_pert)
+            #G_plus_1_x /= norm(G_plus_1_x)
+
+            G_plus_1_y = dot(A, v1 + y_pert)
+            #G_plus_1_y /= norm(G_plus_1_y)
+
+            G_minus_1_x = dot(A, v1 - x_pert)
+            #G_minus_1_x /= norm(G_minus_1_x)
+
+            G_minus_1_y = dot(A, v1 - y_pert)
+            #G_minus_1_y /= norm(G_minus_1_y)
+
+
+            dG_0[k,i] = dot(vstack([G_plus_0_x - G_minus_0_x, \
+                    G_plus_0_y - G_minus_0_y])/(2.0*eps), v0) 
+
+            dG_1[k,i] = dot(vstack([G_plus_1_x - G_minus_1_x, \
+                    G_plus_1_y - G_minus_1_y])/(2.0*eps), v1) 
+
+    assert(allclose(dG_1[2], dG_1[3]))
+    assert(allclose(dG_0[2], dG_0[3]))
+    fig, ax = subplots(1,2)
+    dG_0 = dG_0.T
+    dG_1 = dG_1.T
+    ax[0].plot(dG_0[0,200], dG_0[1,200],'.',ms=10) 
+    ax[0].plot(dG_0[0,2000], dG_0[1,2000],'.',ms=10)  
+    
+    ax[1].plot(dG_1[0,1000], dG_1[1,1000],'.',ms=10) 
+    ax[1].plot(dG_1[0,200], dG_1[1,200],'.',ms=10)  
+    
+    ax[0].xaxis.set_tick_params(labelsize=30)
+    ax[1].xaxis.set_tick_params(labelsize=30)
+    ax[0].yaxis.set_tick_params(labelsize=30)
+    ax[1].yaxis.set_tick_params(labelsize=30)
+    '''
+    eps_plot = 1.e-2
+    u_trj = u_trj.T
+    dG_0 = dG_0.T/norm(dG_0,axis=1)
+    dG_1 = dG_1.T/norm(dG_1,axis=1)
+    #dG_0 = ones_like(u_trj)
+    #dG_1 = ones_like(u_trj)
+    ax[0].plot([u_trj[0] - eps_plot*dG_0[0],\
+                u_trj[0] + eps_plot*dG_0[1]],\
+                [u_trj[1] - eps_plot*dG_0[1],\
+                u_trj[1] + eps_plot*dG_0[1]],\
+                lw=2.5,color='r')
+    ax[1].plot([u_trj[0] - eps_plot*dG_1[0],\
+                u_trj[0] + eps_plot*dG_1[1]],\
+                [u_trj[1] - eps_plot*dG_1[1],\
+                u_trj[1] + eps_plot*dG_1[1]],\
+                lw=2.5,color='b')
+    ax[0].set_title(r'$dG(V^1)$',fontsize=30)
+    ax[1].set_title(r'$dG(V^2)$',fontsize=30)
+    '''
+def test_dG():
+    """
+    z(v)(u) := ||Dvarphi(u) v||
+    This function computes dG(V^i(u))(u), 
+    the derivative of G at the CLVs as 
+    dG(V)(u) = G/z - (1/z*z) G (grad(z)(V)*V)
+    """
+    u = rand(2).reshape(2,1)
     n = 1000
     #s = [0.75, 0.99]
     s = zeros(2)
     u_trj = step(u, s, n).T[0] 
     du_trj = dstep(u_trj, s)
     clv_trj = clvs(u_trj, du_trj, 2) 
-    n_origin = 50
     u_trj = u_trj.T
 
-    eps = 1.e-6
-    x_pert = zeros(2)
-    y_pert = zeros(2)
-    x_pert[0] += eps
-    y_pert[1] += eps 
-    for i in range(n):
- 
-        v0 = clv_trj[i,0]
-        v1 = clv_trj[i,1]
-        A = du_trj[i] 
-        
-        G_plus_0_x = dot(A, v0 + x_pert)
-        G_plus_0_x /= norm(G_plus_0_x)
+    n = n+1
+    n_eps = 4
+    dG_0 = empty((n_eps,n,2))
+    dG_1 = empty((n_eps,n,2))
+    eps = 1.e-2
+    v0 = rand(2)
+    v1 = rand(2)
+    for k in range(n_eps):
+        eps *= 1.e-1
+        x_pert = zeros(2)
+        y_pert = zeros(2)
+        x_pert[0] += eps
+        y_pert[1] += eps 
 
-        G_plus_0_y = dot(A, v0 + y_pert)
-        G_plus_0_y /= norm(G_plus_0_y)
+        for i in range(n):
+     
+            #v0 = clv_trj[i,0]
+            #v1 = clv_trj[i,1]
 
-        G_minus_0_x = dot(A, v0 - x_pert)
-        G_minus_0_x /= norm(G_minus_0_x)
+            A = du_trj[i] 
+            
+            G_plus_0_x = dot(A, v0 + x_pert)
+            z_plus_0_x = norm(G_plus_0_x)
 
-        G_minus_0_y = dot(A, v0 - y_pert)
-        G_minus_0_y /= norm(G_minus_0_y)
+            G_plus_0_y = dot(A, v0 + y_pert)
+            z_plus_0_y = norm(G_plus_0_y)
 
- 
-        G_plus_1_x = dot(A, v1 + x_pert)
-        G_plus_1_x /= norm(G_plus_1_x)
+            G_minus_0_x = dot(A, v0 - x_pert)
+            z_minus_0_x = norm(G_minus_0_x)
 
-        G_plus_1_y = dot(A, v1 + y_pert)
-        G_plus_1_y /= norm(G_plus_1_y)
+            G_minus_0_y = dot(A, v0 - y_pert)
+            z_minus_0_y = norm(G_minus_0_y)
 
-        G_minus_1_x = dot(A, v1 - x_pert)
-        G_minus_1_x /= norm(G_minus_1_x)
+            G_0 = dot(A, v0)
+            z_0 = norm(G_0)
+            G_0 /= z_0
+            one_by_z0_sq = 1.0/(z_0*z_0)
 
-        G_minus_1_y = dot(A, v1 - y_pert)
-        G_minus_1_y /= norm(G_minus_1_y)
+            G_plus_1_x = dot(A, v1 + x_pert)
+            z_plus_1_x = norm(G_plus_1_x)
 
+            G_plus_1_y = dot(A, v1 + y_pert)
+            z_plus_1_y = norm(G_plus_1_y)
 
-        dG_0 = dot(vstack([G_plus_0_x - G_minus_0_x, \
-                G_plus_0_y - G_minus_0_y])/eps, v0) 
+            G_minus_1_x = dot(A, v1 - x_pert)
+            z_minus_1_x = norm(G_minus_1_x)
 
-        dG_1 = dot(vstack([G_plus_1_x - G_minus_1_x, \
-                G_plus_1_y - G_minus_1_y])/eps, v1) 
+            G_minus_1_y = dot(A, v1 - y_pert)
+            z_minus_1_y = norm(G_minus_1_y)
+            
+            G_1 = dot(A, v1)
+            z_1 = norm(G_1)
+            G_1 /= z_1
+            one_by_z1_sq = 1.0/(z_1*z_1)
 
-        #fig, ax = subplots(1,2)
-        
+            dG_0[k,i] = -one_by_z0_sq*dot(A, \
+                    vstack([z_plus_0_x - z_minus_0_x, \
+                    z_plus_0_y - z_minus_0_y])/(2.0*eps)*v0) + \
+                    G_0
+            dG_1[k,i] = -one_by_z1_sq*dot(A, \
+                    vstack([z_plus_1_x - z_minus_1_x, \
+                    z_plus_1_y - z_minus_1_y])/(2.0*eps)*v1) + \
+                    G_1
+
+    assert(allclose(dG_1[2], dG_1[3]))
+    assert(allclose(dG_0[2], dG_0[3]))
+    fig, ax = subplots(1,2)
+    dG_0 = dG_0.T
+    dG_1 = dG_1.T
+    ax[0].plot(dG_0[0,200], dG_0[1,200],'.',ms=10) 
+    ax[0].plot(dG_0[0,2000], dG_0[1,2000],'.',ms=10)  
+    
+    ax[1].plot(dG_1[0,1000], dG_1[1,1000],'.',ms=10) 
+    ax[1].plot(dG_1[0,200], dG_1[1,200],'.',ms=10)  
+    
+    ax[0].xaxis.set_tick_params(labelsize=30)
+    ax[1].xaxis.set_tick_params(labelsize=30)
+    ax[0].yaxis.set_tick_params(labelsize=30)
+    ax[1].yaxis.set_tick_params(labelsize=30)
 
 def clv_along_clv():
     """
