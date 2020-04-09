@@ -196,8 +196,8 @@ def test_dG():
         assert(allclose(dG_0_fd[i], dG_0_ana[i]))
         assert(allclose(dG_1_fd[i], dG_1_ana[i]))
        
-#def plot_dG():       
-if __name__=="__main__":
+def plot_dG():       
+#if __name__=="__main__":
     """
     G(v)(u) := Dvarphi(u) v/||Dvarphi(u) v||
     This function plots DG(V(u))(u).V^i(u).
@@ -454,8 +454,52 @@ def clv_along_clv():
      #   ax.plot(clv1_x1[i], clv1_x2[i], 'r.', label='1st CLV', ms=10.0)
         #ax.plot(clv2_x1[i], clv2_x2[i], 'b.', label='2nd CLV', ms=10.0)
         #pause(0.001)
+if __name__=="__main__":
+#def plot_DVW():
+    """
+    Plot V^i.W^i
+    """
+    u = rand(2).reshape(2,1)
+    n = 10000
+    s = [0.75, 0.99]
+    #s = zeros(2)
+    u_trj = step(u, s, n).T[0] 
+    du_trj = dstep(u_trj, s)
+    u_trj_rev = fliplr(u_trj)
+    duT_trj_rev = flipud(transpose(du_trj,[0,2,1]))
 
+     
+    clv_trj = clvs(u_trj, du_trj, 2) 
+    adj_clv_trj = clvs(u_trj_rev, duT_trj_rev, 2)
+    adj_clv_trj = flipud(adj_clv_trj)
+    u_trj = u_trj.T
+    c_trj = matmul(clv_trj, transpose(adj_clv_trj, \
+            [0,2,1]))
+    c0 = c_trj[:,0,0]
+    c1 = c_trj[:,1,1]
+    '''
+    n_grid = 50
+    x_x = linspace(0.,1.,n_grid)
+    x_grid, y_grid = meshgrid(x_x, x_x)
+    u_trj = u_trj.T
+    f = interp2d(u_trj[0,10:-10], u_trj[1,10:-10], c0[10:-10])
+    cx = f(x_x, x_x).reshape(\
+            n_grid,n_grid)
+    '''
+    fig, ax = subplots(1,2)
+    ax[0].xaxis.set_tick_params(labelsize=30)
+    ax[0].yaxis.set_tick_params(labelsize=30)
+    
+    ax[1].xaxis.set_tick_params(labelsize=30)
+    ax[1].yaxis.set_tick_params(labelsize=30)
+    ax[0].set_title(r'$W^1\cdot V^1$',fontsize=30)
+    ax[0].set_xlabel(r'$y$',fontsize=30)
 
+    ax[1].set_title(r'$W^2\cdot V^2$',fontsize=30)
+    ax[1].set_xlabel(r'$y$',fontsize=30)
+    #cplot = ax.contourf(x_grid, x_grid, cx,20)
+    ax[0].plot(u_trj[20:-20,1], c0[20:-20],'r.',ms=1)
+    ax[1].plot(u_trj[20:-20,1], c1[20:-20],'b.',ms=1)
 
 def plot_clvs():
     fig, ax = subplots(1,2)
