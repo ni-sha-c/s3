@@ -3,6 +3,7 @@ sys.path.insert(0,'../examples/')
 from PerturbedCatMap import *
 from numpy import *
 from scipy.interpolate import *
+from matplotlib import *
 #if __name__=="__main__":
 def plot_density():
     fig, ax = subplots(1,2)
@@ -355,6 +356,102 @@ def test_dz():
     ax[0].yaxis.set_tick_params(labelsize=30)
     ax[1].yaxis.set_tick_params(labelsize=30)
     '''
+def D2step(u_trj, s):
+#if __name__ == "__main__":
+    """
+    This function computes D^2 varphi
+    along a trajectory using finite 
+    difference
+    """
+    d, n = u_trj.shape
+    eps = 1.e-4
+    u_trj_x_p = copy(u_trj) + \
+            reshape([eps*u_trj[0,:], zeros(n)], \
+            [2,n])
+    u_trj_x_m = copy(u_trj) - \
+            reshape([eps*u_trj[0,:], zeros(n)], \
+            [2,n])
+
+    u_trj_y_p = copy(u_trj) + \
+            reshape([eps*u_trj[1,:], zeros(n)], \
+            [2,n])
+    u_trj_y_m = copy(u_trj) - \
+            reshape([eps*u_trj[1,:], zeros(n)], \
+            [2,n])
+
+
+    ddu_dx_trj =  (dstep(u_trj_x_p, s) - \
+            dstep(u_trj_x_m, s))/(2.0*eps)
+
+    ddu_dy_trj =  (dstep(u_trj_y_p, s) - \
+            dstep(u_trj_y_m, s))/(2.0*eps)
+
+    return reshape([ddu_dx_trj, ddu_dy_trj],\
+            [n,d,d,d])
+ 
+if __name__ == "__main__":
+#def dDvarphi_dpx():
+    u = rand(2).reshape(2,1)
+    n = 10000
+    s = [0.75, 0.2]
+    #s = zeros(2)
+    u_trj = step(u, s, n).T[0]
+    d, n = shape(u_trj)
+    du_trj = dstep(u_trj, s)
+    clv_trj = clvs(u_trj, du_trj, 2)
+    du = 1
+    z_trj = empty((n,du))
+    
+    ddu_trj = D2step(u_trj,s)
+    W1 = empty((n,d,du))
+    W1[0] = rand(d,du)
+    for i in range(n-1):
+        clvsi = clv_trj[i,:du].T
+        z_trj[i] = norm(dot(du_trj[i],\
+                clvsi), axis=0)
+        z2 = z_trj[i]*z_trj[i]
+        ddu = array([ddu_trj[i,0], ddu_trj[i,1]]).T
+        ddu_dpx = dot(dot(ddu, clvsi).T[0], clvsi)/z2
+        dclv_dpx = dot(du_trj[i], W1[i])/z2
+        W1_part = ddu_dpx + dclv_dpx
+        clv_ip1 = clv_trj[i+1,:du].T
+        dot_clv_ip1 = norm(clv_ip1)**2.0
+        dz_dx = dot(W1_part.T, clv_ip1)*z_trj[i]/dot_clv_ip1
+        W1[i+1] = W1_part - dz_dx/z_trj[i]*clv_ip1
+         
+    fig, ax = subplots(1,1)
+    v1 = clv_trj[:,0].T
+    eps = 1.e-2
+    u = u_trj
+    W1 = W1.T[0]
+    ax.plot([u[0] - eps*v1[0], u[0] + eps*v1[0]],\
+            [u[1] - eps*v1[1], u[1] + eps*v1[1]],\
+            lw=1.0,label=r"$V^1$",color="red")
+    ax.plot([u[0] - eps*W1[0], u[0] + eps*W1[0]],\
+           [u[1] - eps*W1[1], u[1] + eps*W1[1]],\
+            lw=1.0,color="blue")
+
+    ax.axis("scaled")
+    fig1, ax1 = subplots(1,1)
+    angles = arctan(v1[1]/v1[0])
+    nor = colors.Normalize(vmin = min(angles), \
+            vmax = max(angles))
+    colormap = cm.get_cmap('binary')
+    cols = colormap(nor(angles))
+    for i in range(n):
+        ax1.plot(u[0,i], u[1,i],"o",\
+                fillstyle="full",\
+                ms=5.0,color=cols[i])
+    ax1.plot([u[0] - eps*W1[0], u[0] + eps*W1[0]],\
+            [u[1] - eps*W1[1], u[1] + eps*W1[1]],\
+            lw=1.0,color="blue")
+    ax1.axis("scaled")
+    ax.xaxis.set_tick_params(labelsize=30)
+    ax.yaxis.set_tick_params(labelsize=30)
+    ax1.xaxis.set_tick_params(labelsize=30)
+    ax1.yaxis.set_tick_params(labelsize=30)
+
+
 def clv_along_clv():
     """
     Differentiating along CLV
@@ -454,8 +551,8 @@ def clv_along_clv():
      #   ax.plot(clv1_x1[i], clv1_x2[i], 'r.', label='1st CLV', ms=10.0)
         #ax.plot(clv2_x1[i], clv2_x2[i], 'b.', label='2nd CLV', ms=10.0)
         #pause(0.001)
-if __name__=="__main__":
-#def plot_DVW():
+#if __name__=="__main__":
+def plot_DVW():
     """
     Plot V^i.W^i
     """
