@@ -93,6 +93,41 @@ def dstep(u, s=[0.,0.]):
             ones(m)]), order='F')
     dTu_u = dTu_u.reshape([-1,2,2])
     return dTu_u
+
+def d2step(u_trj, s):
+#if __name__ == "__main__":
+    """
+    This function computes D^2 varphi
+    along a trajectory using finite 
+    difference
+    """
+    d, n = u_trj.shape
+    eps = 1.e-4
+    u_trj_x_p = copy(u_trj) + \
+            reshape([eps*u_trj[0,:], zeros(n)], \
+            [2,n])
+    u_trj_x_m = copy(u_trj) - \
+            reshape([eps*u_trj[0,:], zeros(n)], \
+            [2,n])
+
+    u_trj_y_p = copy(u_trj) + \
+            reshape([eps*u_trj[1,:], zeros(n)], \
+            [2,n])
+    u_trj_y_m = copy(u_trj) - \
+            reshape([eps*u_trj[1,:], zeros(n)], \
+            [2,n])
+
+
+    ddu_dx_trj =  (dstep(u_trj_x_p, s) - \
+            dstep(u_trj_x_m, s))/(2.0*eps)
+
+    ddu_dy_trj =  (dstep(u_trj_y_p, s) - \
+            dstep(u_trj_y_m, s))/(2.0*eps)
+
+    return reshape([ddu_dx_trj, ddu_dy_trj],\
+            [n,d,d,d])
+
+
 def lyapunov_exponents(u,Du,dim):
     """
     Inputs:

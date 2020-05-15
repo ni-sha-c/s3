@@ -1,6 +1,8 @@
 import sys
 sys.path.insert(0,'../examples/')
+sys.path.insert(0,'../src/')
 from PerturbedCatMap import *
+from clvs import *
 from numpy import *
 from scipy.interpolate import *
 from matplotlib import *
@@ -356,39 +358,7 @@ def test_dz():
     ax[0].yaxis.set_tick_params(labelsize=30)
     ax[1].yaxis.set_tick_params(labelsize=30)
     '''
-def D2step(u_trj, s):
-#if __name__ == "__main__":
-    """
-    This function computes D^2 varphi
-    along a trajectory using finite 
-    difference
-    """
-    d, n = u_trj.shape
-    eps = 1.e-4
-    u_trj_x_p = copy(u_trj) + \
-            reshape([eps*u_trj[0,:], zeros(n)], \
-            [2,n])
-    u_trj_x_m = copy(u_trj) - \
-            reshape([eps*u_trj[0,:], zeros(n)], \
-            [2,n])
 
-    u_trj_y_p = copy(u_trj) + \
-            reshape([eps*u_trj[1,:], zeros(n)], \
-            [2,n])
-    u_trj_y_m = copy(u_trj) - \
-            reshape([eps*u_trj[1,:], zeros(n)], \
-            [2,n])
-
-
-    ddu_dx_trj =  (dstep(u_trj_x_p, s) - \
-            dstep(u_trj_x_m, s))/(2.0*eps)
-
-    ddu_dy_trj =  (dstep(u_trj_y_p, s) - \
-            dstep(u_trj_y_m, s))/(2.0*eps)
-
-    return reshape([ddu_dx_trj, ddu_dy_trj],\
-            [n,d,d,d])
- 
 if __name__ == "__main__":
 #def dDvarphi_dpx():
     u = rand(2).reshape(2,1)
@@ -402,7 +372,7 @@ if __name__ == "__main__":
     du = 1
     z_trj = empty((n,du))
     
-    ddu_trj = D2step(u_trj,s)
+    ddu_trj = d2step(u_trj,s)
     W1 = empty((n,d,du))
     W1[0] = rand(d,du)
     for i in range(n-1):
