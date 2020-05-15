@@ -360,7 +360,7 @@ def test_dz():
     '''
 
 if __name__ == "__main__":
-#def dDvarphi_dpx():
+#def plot_dDV1cdotV1():
     u = rand(2).reshape(2,1)
     n = 10000
     s = [0.75, 0.2]
@@ -368,33 +368,17 @@ if __name__ == "__main__":
     u_trj = step(u, s, n).T[0]
     d, n = shape(u_trj)
     du_trj = dstep(u_trj, s)
-    clv_trj = clvs(u_trj, du_trj, 2)
+    clv_trj = clvs(u_trj, du_trj, 1)
     du = 1
-    z_trj = empty((n,du))
-    
     ddu_trj = d2step(u_trj,s)
-    W1 = empty((n,d,du))
-    W1[0] = rand(d,du)
-    for i in range(n-1):
-        clvsi = clv_trj[i,:du].T
-        z_trj[i] = norm(dot(du_trj[i],\
-                clvsi), axis=0)
-        z2 = z_trj[i]*z_trj[i]
-        ddu = array([ddu_trj[i,0], ddu_trj[i,1]]).T
-        ddu_dpx = dot(dot(ddu, clvsi).T[0], clvsi)/z2
-        dclv_dpx = dot(du_trj[i], W1[i])/z2
-        W1_part = ddu_dpx + dclv_dpx
-        clv_ip1 = clv_trj[i+1,:du].T
-        dot_clv_ip1 = norm(clv_ip1)**2.0
-        dz_dx = dot(W1_part.T, clv_ip1)*z_trj[i]/dot_clv_ip1
-        W1[i+1] = W1_part - dz_dx/z_trj[i]*clv_ip1
-         
+    W1 = dclv_clv(clv_trj[:,:,:du], du_trj, ddu_trj)
+    
     fig, ax = subplots(1,1)
     n_spinup = 100
-    v1 = clv_trj[n_spinup:,0].T
-    eps = 1.e-2
+    v1 = clv_trj[n_spinup:,:,0].T
+    eps = 5.e-3
     u = u_trj[:,n_spinup:]
-    W1 = W1.T[0,:,n_spinup:]
+    W1 = W1[n_spinup:,:,0].T
     ax.plot([u[0] - eps*v1[0], u[0] + eps*v1[0]],\
             [u[1] - eps*v1[1], u[1] + eps*v1[1]],\
             lw=1.0,label=r"$V^1$",color="red")
@@ -416,13 +400,13 @@ if __name__ == "__main__":
     ax1.plot([u[0] - eps*W1[0], u[0] + eps*W1[0]],\
             [u[1] - eps*W1[1], u[1] + eps*W1[1]],\
             lw=1.0,color="blue")
-    ax1.axis("scaled")
+    ax1.axis("equal")
     ax.xaxis.set_tick_params(labelsize=30)
     ax.yaxis.set_tick_params(labelsize=30)
     ax1.xaxis.set_tick_params(labelsize=30)
     ax1.yaxis.set_tick_params(labelsize=30)
 
-
+    
 def clv_along_clv():
     """
     Differentiating along CLV
