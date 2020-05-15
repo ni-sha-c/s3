@@ -420,10 +420,11 @@ if __name__ == "__main__":
         W1[i+1] = W1_part - dz_dx/z_trj[i]*clv_ip1
          
     fig, ax = subplots(1,1)
-    v1 = clv_trj[:,0].T
+    n_spinup = 100
+    v1 = clv_trj[n_spinup:,0].T
     eps = 1.e-2
-    u = u_trj
-    W1 = W1.T[0]
+    u = u_trj[:,n_spinup:]
+    W1 = W1.T[0,:,n_spinup:]
     ax.plot([u[0] - eps*v1[0], u[0] + eps*v1[0]],\
             [u[1] - eps*v1[1], u[1] + eps*v1[1]],\
             lw=1.0,label=r"$V^1$",color="red")
@@ -438,7 +439,7 @@ if __name__ == "__main__":
             vmax = max(angles))
     colormap = cm.get_cmap('binary')
     cols = colormap(nor(angles))
-    for i in range(n):
+    for i in range(n-n_spinup):
         ax1.plot(u[0,i], u[1,i],"o",\
                 fillstyle="full",\
                 ms=5.0,color=cols[i])
