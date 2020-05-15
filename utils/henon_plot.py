@@ -63,3 +63,4 @@ def plot_iterations():
     anim = FuncAnimation(fig, animate, \
             init_func=init, frames=n, interval=500)
     anim.save('henon_iterates.mp4')
+
