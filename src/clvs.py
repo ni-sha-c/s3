@@ -99,13 +99,12 @@ def dclv_clv(clv_trj, du_trj, ddu_trj):
         z_trj[i] = linalg.norm(dot(du_trj[i],\
                 clvsi), axis=0)
         z2 = z_trj[i]*z_trj[i]
-        ddui = ddu_trj[i].T
+        ddui = ddu_trj[i]
         ddu_dpx = dot(dot(ddui, clvsi).T[0], clvsi)/z2
         dclv_dpx = dot(du_trj[i], W1i)/z2
         W1i_part = ddu_dpx + dclv_dpx
         clv_ip1 = clv_trj[i+1]
-        dot_clv_ip1 = linalg.norm(clv_ip1,axis=0)**2.0
-        dz_dx = diag(dot(W1i_part.T, clv_ip1))*z_trj[i]/dot_clv_ip1
-        W1[i+1] = W1i_part - dz_dx/z_trj[i]*clv_ip1
+        dz_dx = -diag(dot(W1i_part.T, clv_ip1))
+        W1[i+1] = W1i_part + dz_dx*clv_ip1
     return W1
 

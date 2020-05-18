@@ -102,18 +102,18 @@ def d2step(u_trj, s):
     """
     d, n = u_trj.shape
     eps = 1.e-4
-    u_trj_x_p = copy(u_trj) + \
-            reshape([eps*u_trj[0,:], zeros(n)], \
+    u_trj_x_p = u_trj + \
+            reshape([eps*ones(n), zeros(n)], \
             [2,n])
-    u_trj_x_m = copy(u_trj) - \
-            reshape([eps*u_trj[0,:], zeros(n)], \
+    u_trj_x_m = u_trj - \
+            reshape([eps*ones(n), zeros(n)], \
             [2,n])
 
-    u_trj_y_p = copy(u_trj) + \
-            reshape([eps*u_trj[1,:], zeros(n)], \
+    u_trj_y_p = u_trj + \
+            reshape([zeros(n), eps*ones(n)], \
             [2,n])
-    u_trj_y_m = copy(u_trj) - \
-            reshape([eps*u_trj[1,:], zeros(n)], \
+    u_trj_y_m = u_trj - \
+            reshape([zeros(n), eps*ones(n)], \
             [2,n])
 
 
@@ -123,7 +123,7 @@ def d2step(u_trj, s):
     ddu_dy_trj =  (dstep(u_trj_y_p, s) - \
             dstep(u_trj_y_m, s))/(2.0*eps)
 
-    return reshape([ddu_dx_trj, ddu_dy_trj],\
+    return reshape(hstack([ddu_dx_trj, ddu_dy_trj]),\
             [n,d,d,d])
 
 def augmented_step(u, s=[0.,0.], n=1):

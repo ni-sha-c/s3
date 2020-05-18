@@ -6,6 +6,7 @@ from clvs import *
 from numpy import *
 from scipy.interpolate import *
 from matplotlib import *
+from matplotlib.collections import LineCollection 
 #if __name__=="__main__":
 def plot_density():
     fig, ax = subplots(1,2)
@@ -371,14 +372,16 @@ if __name__ == "__main__":
     clv_trj = clvs(u_trj, du_trj, 1)
     du = 1
     ddu_trj = d2step(u_trj,s)
-    W1 = dclv_clv(clv_trj[:,:,:du], du_trj, ddu_trj)
+    W1 = dclv_clv(clv_trj, du_trj, ddu_trj)
     
-    fig, ax = subplots(1,1)
+
     n_spinup = 100
     v1 = clv_trj[n_spinup:,:,0].T
-    eps = 5.e-3
+    eps = 1.e-2
     u = u_trj[:,n_spinup:]
     W1 = W1[n_spinup:,:,0].T
+    '''
+    fig, ax = subplots(1,1)
     ax.plot([u[0] - eps*v1[0], u[0] + eps*v1[0]],\
             [u[1] - eps*v1[1], u[1] + eps*v1[1]],\
             lw=1.0,label=r"$V^1$",color="red")
@@ -405,8 +408,25 @@ if __name__ == "__main__":
     ax.yaxis.set_tick_params(labelsize=30)
     ax1.xaxis.set_tick_params(labelsize=30)
     ax1.yaxis.set_tick_params(labelsize=30)
+    '''
+    eps=array([-1E-2, 1E-2]).reshape([1,2,1])
+    segments = u.T.reshape([-1,1,2]) + eps * v1.T.reshape([-1,1,2])
+    cross_prod = W1[0]*v1[1] - W1[1]*v1[0]
+    lc = LineCollection(segments, cmap=plt.get_cmap('RdBu'), \
+            norm=plt.Normalize(min(cross_prod), max(cross_prod)))
+    #lc.set_array(ones(u.shape[1]))
+    lc.set_array(cross_prod)
+    #lc.set_array(norm(W1,axis=0))
+    lc.set_linewidth(1)
 
-    
+    fig2, ax2 = subplots(1,1) 
+    ax2.add_collection(lc)
+    fig2.colorbar(cm.ScalarMappable(norm=plt.Normalize(min(cross_prod),max(cross_prod)), cmap=plt.get_cmap('RdBu')), ax=ax2)
+
+    ax2.xaxis.set_tick_params(labelsize=30)
+    ax2.yaxis.set_tick_params(labelsize=30)
+    ax2.axis('scaled')
+
 def clv_along_clv():
     """
     Differentiating along CLV
