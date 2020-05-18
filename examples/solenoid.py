@@ -16,24 +16,69 @@ def step(u, s=[0.], n=1):
                 t_next)
         u_trj[i,2] = z_next
     return u_trj
-def cart_to_cyl(x,y):
-    return [sqrt(x*x + y*y), arctan2(y, x) % (2*pi)]
-def cyl_to_cart(r,t):
-    return [r*cos(t), r*sin(t)]
-'''
-def dstep(u, s=[1.4,0.3]):
+
+def dstep(u, s=[0]):
     d, m = u.shape
     du_trj = empty((d,d,m))
-    a, b = s
-    du_trj[0,0] = -a*2*u[0]
-    du_trj[1,0] = 1.0
-    du_trj[0,1] = b
-    du_trj[1,1] = 0.0
-    return du_trj.T
+    s0 = s[0]
+    
+    x,y,z = u[0], u[1], u[2]
+    r, t = cart_to_cyl(x,y)
+    ct = cos(t)
+    st = sin(t)
+    
+    r1 = s0 + (r - s0)/4 + ct/2
+    t1 = 2*t
+    z1 = z/4 + st/2
+
+    dx1, dy1 = dcyl_to_cart(r1, t1)
+    dr, dt = dcart_to_cyl(x,y)
+
+    dr1_r = (1/4)*ones(m) 
+    dr1_t = -st/2
+    dt1_t = 2*ones(m)
+    dz1_z = (1/4)*ones(m)
+    dz1_t = ct/2
+
+    dr1_x = dr1_r*dr[0] + dr1_t*dt[0]
+    dt1_x = dt1_t*dt[0]
+    dz1_x = dz1_t*dt[0]
+
+    dr1_y = dr1_r*dr[1] + dr1_t*dt[1]
+    dt1_y = dt1_t*dt[1]
+    dz1_y = dz1_t*dt[1]
+
+    du = zeros((d,d,m))
+    du[0,0] = dx1[0]*dr1_x + dx1[1]*dt1_x
+    du[0,1] = dy1[0]*dr1_x + dy1[1]*dt1_x
+    du[0,2] = dz1_x
+
+    du[1,0] = dx1[0]*dr1_y + dx1[1]*dt1_y
+    du[1,1] = dy1[0]*dr1_y + dy1[1]*dt1_y
+    du[1,2] = dz1_y
+
+    du[2,2] = 1/4*ones(m)
+
+    return du.T
+
 def d2step(u, s=[1.4,0.3]):
     d, m = u.shape
     ddu_trj = zeros((d,d,d,m))
     a, b = s
     ddu_trj[0,0,0] = -2*a
     return ddu_trj
-'''
+
+def cart_to_cyl(x,y):
+    return [sqrt(x*x + y*y), arctan2(y, x) % (2*pi)]
+def cyl_to_cart(r,t):
+    return [r*cos(t), r*sin(t)]
+def dcyl_to_cart(r,t):
+    return vstack([cos(t), -r*sin(t)]), \
+           vstack([sin(t), r*cos(t)])
+def dcart_to_cyl(x,y):
+    r2 = x*x + y*y
+    r = sqrt(r2)
+    return vstack([x/r, y/r]),\
+            vstack([-y/r2, x/r2])
+            
+
