@@ -9,7 +9,8 @@ def plot_solenoid():
     m = 1
     n = 2000
     u0 = rand(3,m)
-    u_trj = step(u0, [0.], n)
+    s = [1.,4.]
+    u_trj = step(u0, s, n)
     fig = figure(figsize=(36,36))
     ax = fig.add_subplot(111, projection='3d')
     ax.plot(u_trj[:,0,0], u_trj[:,1,0], u_trj[:,2,0], \
@@ -18,7 +19,7 @@ def test_dstep():
     m = 100
     u = rand(3, m)
     eps = 1.e-5
-    s = [0.]
+    s = [1.,4.]
     du_dx_fd = (step(u + eps*reshape([1.0, 0.,0.],\
             [3,1]), s, 1) - \
                step(u - eps*reshape([1.0, 0.,0.],\
