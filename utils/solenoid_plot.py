@@ -11,7 +11,7 @@ if __name__ == "__main__":
 #def plot_dDV1cdotV1():
     u = rand(3).reshape(3,1)
     n = 10000
-    s = [1.,1.e5]
+    s = [1.,10.]
     u_trj = step(u, s, n).T[0]
     d, n = shape(u_trj)
     d_u = 1

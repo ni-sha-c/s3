@@ -1,5 +1,7 @@
 import sys
 sys.path.insert(0,'../examples/')
+sys.path.insert(0,'../src/')
+from clvs import *
 from henon import *
 from numpy import *
 from scipy.interpolate import *
@@ -63,4 +65,16 @@ def plot_iterations():
     anim = FuncAnimation(fig, animate, \
             init_func=init, frames=n, interval=500)
     anim.save('henon_iterates.mp4')
+if __name__=="__main__":
+#def plot_clvs():
+    s = [1.4,0.3]
+    u = fixed_point(s)
+    n = 10000
+    u_trj = step(u,s,n)[0]
+    d, n = u_trj.shape
+    d_u = 1
+    du_trj = dstep(u_trj, s)
+    clv_trj = clvs(u_trj, du_trj, d_u)
+    
+
 

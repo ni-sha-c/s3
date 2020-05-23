@@ -8,7 +8,7 @@ def step(u, s=[1.4,0.3], n=1):
         u_trj[i,0] = 1.0 - a*u_trj[i-1,0]*u_trj[i-1,0] + \
                 u_trj[i-1,1]
         u_trj[i,1] = b*u_trj[i-1,0]
-    return u_trj
+    return u_trj.T
 def dstep(u, s=[1.4,0.3]):
     d, m = u.shape
     du_trj = empty((d,d,m))
@@ -24,4 +24,10 @@ def d2step(u, s=[1.4,0.3]):
     a, b = s
     ddu_trj[0,0,0] = -2*a
     return ddu_trj
+def fixed_point(s):
+    a,b = s
+    x = 1/(2*a)*(-(1-b) + \
+            sqrt((1-b)**2.0 + 4*a))
+    y = b*x
+    return reshape([x,y],[2,1])
 
