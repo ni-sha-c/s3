@@ -12,10 +12,10 @@ def plot_solenoid():
     n = 2000
     u0 = rand(3,m)
     s = [1.,4.]
-    u_trj = step(u0, s, n)
+    u_trj = step(u0, s, n)[0]
     fig = figure(figsize=(36,36))
     ax = fig.add_subplot(111, projection='3d')
-    ax.plot(u_trj[:,0,0], u_trj[:,1,0], u_trj[:,2,0], \
+    ax.plot(u_trj[0], u_trj[1], u_trj[2], \
             "o",ms=2.0)
 def test_dstep():
     m = 100
@@ -25,29 +25,29 @@ def test_dstep():
     du_dx_fd = (step(u + eps*reshape([1.0, 0.,0.],\
             [3,1]), s, 1) - \
                step(u - eps*reshape([1.0, 0.,0.],\
-            [3,1]), s, 1))[-1]/(2*eps)
+               [3,1]), s, 1))[:,:,-1]/(2*eps)
     du_dy_fd = (step(u + eps*reshape([0., 1.,0.],\
             [3,1]), s, 1) - \
                step(u - eps*reshape([0., 1.,0.],\
-            [3,1]), s, 1))[-1]/(2*eps) 
+               [3,1]), s, 1))[:,:,-1]/(2*eps) 
     du_dz_fd = (step(u + eps*reshape([0., 0.,1.],\
             [3,1]), s, 1) - \
                step(u - eps*reshape([0., 0.,1.],\
-            [3,1]), s, 1))[-1]/(2*eps)
+               [3,1]), s, 1))[:,:,-1]/(2*eps)
     du = dstep(u, s).T
     du_dx = vstack([du[0,0], du[0,1], du[0,2]])
     du_dy = vstack([du[1,0], du[1,1], du[1,2]])
     du_dz = vstack([du[2,0], du[2,1], du[2,2]])
     
-    assert(allclose(du_dx, du_dx_fd))
-    assert(allclose(du_dy, du_dy_fd))
-    assert(allclose(du_dz, du_dz_fd))
+    assert(allclose(du_dx, du_dx_fd.T))
+    assert(allclose(du_dy, du_dy_fd.T))
+    assert(allclose(du_dz, du_dz_fd.T))
 def test_clv():
 #if __name__=="__main__":
     s = [1.,1.e5]
     u = rand(3,1)
     n = 1000
-    u_trj = step(u,s,n).T[0]
+    u_trj = step(u,s,n)[0]
     d, n = u_trj.shape
     d_u = 3
     du_trj = dstep(u_trj, s)

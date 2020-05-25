@@ -23,7 +23,7 @@ def d2step(u, s=[1.4,0.3]):
     ddu_trj = zeros((d,d,d,m))
     a, b = s
     ddu_trj[0,0,0] = -2*a
-    return ddu_trj
+    return ddu_trj.T
 def fixed_point(s):
     a,b = s
     x = 1/(2*a)*(-(1-b) + \

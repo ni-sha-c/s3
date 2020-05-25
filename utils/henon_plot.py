@@ -7,6 +7,7 @@ from numpy import *
 from scipy.interpolate import *
 from matplotlib import *
 from matplotlib.animation import FuncAnimation
+from matplotlib.collections import LineCollection 
 #if __name__=="__main__":
 def plot_iterations():
     """
@@ -65,16 +66,72 @@ def plot_iterations():
     anim = FuncAnimation(fig, animate, \
             init_func=init, frames=n, interval=500)
     anim.save('henon_iterates.mp4')
-if __name__=="__main__":
-#def plot_clvs():
+#if __name__=="__main__":
+def plot_clvs():
     s = [1.4,0.3]
     u = fixed_point(s)
-    n = 10000
+    n = 40000
+    u_trj = step(u,s,n)[0]
+    d, n = u_trj.shape
+    d_u = 2
+    du_trj = dstep(u_trj, s)
+    clv_trj = clvs(u_trj, du_trj, d_u)
+    fig, ax = subplots(1,1)
+    n_spinup = 100
+    v1 = clv_trj[n_spinup:-n_spinup,:,0].T
+    v2 = clv_trj[n_spinup:-n_spinup,:,1].T
+    x = u_trj[0,n_spinup:-n_spinup]
+    y = u_trj[1,n_spinup:-n_spinup]
+    eps = 1.e-2
+    ax.plot([x - eps*v1[0], x + eps*v1[0]],\
+            [y - eps*v1[1], y + eps*v1[1]],"r")
+    #ax.plot([x - eps*v2[0], x + eps*v2[0]],\
+     #       [y - eps*v2[1], y + eps*v2[1]],"b")
+
+    ax.xaxis.set_tick_params(labelsize=24) 
+    ax.yaxis.set_tick_params(labelsize=24) 
+
+
+if __name__=="__main__":
+    s = [1.4,0.3]
+    u = fixed_point(s)
+    n = 40000
     u_trj = step(u,s,n)[0]
     d, n = u_trj.shape
     d_u = 1
     du_trj = dstep(u_trj, s)
     clv_trj = clvs(u_trj, du_trj, d_u)
+
+    ddu_trj = d2step(u_trj,s)
+    W1 = dclv_clv(clv_trj, du_trj, ddu_trj)
+
+    n_spinup = 100
+    v1 = clv_trj[n_spinup:-n_spinup,:,0].T
+    eps = 1.e-2
+    u = u_trj[:,n_spinup:-n_spinup]
+    W1 = W1[n_spinup:-n_spinup,:,0].T
     
 
+
+    eps=array([-9E-2, 9E-2]).reshape([1,2,1])
+    segments = u.T.reshape([-1,1,2]) + eps * v1.T.reshape([-1,1,2])
+    cross_prod = (W1[0]*v1[1] - W1[1]*v1[0])
+    cross_prod = cross_prod[abs(cross_prod) < 1.0]
+
+
+    lc = LineCollection(segments, cmap=plt.get_cmap('RdBu'), \
+            norm=colors.Normalize(min(cross_prod), max(cross_prod)))
+    #lc.set_array(ones(u.shape[1]))
+    lc.set_array(cross_prod)
+    #lc.set_array(norm(W1,axis=0))
+    lc.set_linewidth(1)
+
+    fig2, ax2 = subplots(1,1)
+    ax2.add_collection(lc)
+    fig2.colorbar(cm.ScalarMappable(norm=plt.Normalize(min(cross_prod),max(cross_prod)), cmap=plt.get_cmap('RdBu')), ax=ax2)
+
+    ax2.xaxis.set_tick_params(labelsize=30)
+    ax2.yaxis.set_tick_params(labelsize=30)
+    ax2.axis('scaled')
+    
 

@@ -15,7 +15,7 @@ def step(u, s=[1.,4.], n=1):
         u_trj[i,0], u_trj[i,1] = cyl_to_cart(r_next,\
                 t_next)
         u_trj[i,2] = z_next
-    return u_trj
+    return u_trj.T
 
 def dstep(u, s=[1.,4.]):
     d, m = u.shape
