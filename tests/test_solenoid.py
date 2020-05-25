@@ -6,6 +6,7 @@ from clvs import *
 from numpy import *
 from scipy.interpolate import *
 from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.collections import LineCollection
 def plot_solenoid():
 #if __name__ == "__main__":
     m = 1
