@@ -17,21 +17,24 @@ def step(u, s=zeros(4), n=1):
     u_trj[0,1] = u[1]
     vx, vy = 8, 5
     mag = 2*pi*(vx**2 + vy**2)
+    st_x = s[0]*vy + s[1]*vx
+    st_y = s[0]*(-vx) + s[1]*vy
+    us_x = s[2]*vy + s[3]*vx
+    us_y = s[2]*(-vx) + s[3]*vy
     for i in range(n):
         x = u_trj[i,0]
         y = u_trj[i,1]
         
-        psi_u = sin(2*pi*(vx*x + vy*y))/mag
-        psi_s = sin(2*pi*(vy*x - vx*y))/mag
+        psi_st = sin(2*pi*(vy*x - vx*y))/mag
+        psi_us = sin(2*pi*(vx*x + vy*y))/mag
 
-        u_trj[i+1,0] = (2*x + y + s[0]*psi_s*vy + \
-                s[1]*psi_s*vx + s[2]*psi_u*vy + \
-                s[3]*psi_u*vx) % 1
-        u_trj[i+1,1] = (x + y - s[0]*psi_s*vx + \
-                s[1]*psi_s*vy - s[2]*psi_u*vx + \
-                s[3]*psi_u*vy) % 1
+
+        u_trj[i+1,0] = (2*x + y + st_x*psi_st + \
+                        us_x*psi_us) % 1
+        u_trj[i+1,1] = (x + y + st_y*psi_st + \
+                        us_y*psi_us) % 1
     return u_trj.T
-def dstep(u, s=[0.,0.]):
+def dstep(u, s=zeros(4)):
     """
     Input info:
     s: parameters, shape:4
@@ -45,56 +48,69 @@ def dstep(u, s=[0.,0.]):
     x, y = u
     vx, vy = 8, 5
     mag = 2*pi*(vx**2 + vy**2)
-    dpsi_u = cos(2*pi*(vx*x + vy*y))/mag
-    dpsi_u_x = dpsi_u*2*pi*vx 
-    dpsi_u_y = dpsi_u*2*pi*vy
-    dpsi_s = cos(2*pi*(vy*x - vx*y))/mag
-    dpsi_s_x = dpsi_s*2*pi*vy 
-    dpsi_s_y = -dpsi_s*2*pi*vx
 
-    du1_x = 2.0 + (s[0]*vy + s[1]*vx)*dpsi_s_x + \
-            (s[2]*vy + s[3]*vx)*dpsi_u_x
-    du1_y = (s[0]*vy + s[1]*vx)*dpsi_s_y + \
-            (s[2]*vy + s[3]*vx)*dpsi_u_y
-    du2_x = (-s[0]*vx + s[1]*vy)*dpsi_s_x + \
-            (-s[2]*vx + s[3]*vy)*dpsi_u_x
-    du2_y = 1.0 + (-s[0]*vx + s[1]*vy)*dpsi_s_y + \
-            (-s[2]*vx + s[3]*vy)*dpsi_u_y
+    dpsi_st = cos(2*pi*(vy*x - vx*y))/mag
+    dpsi_st_x = dpsi_st*2*pi*vy 
+    dpsi_st_y = -dpsi_st*2*pi*vx
+
+
+    dpsi_us = cos(2*pi*(vx*x + vy*y))/mag
+    dpsi_us_x = dpsi_us*2*pi*vx 
+    dpsi_us_y = dpsi_us*2*pi*vy
+    
+    st_x = s[0]*vy + s[1]*vx
+    st_y = s[0]*(-vx) + s[1]*vy
+    us_x = s[2]*vy + s[3]*vx
+    us_y = s[2]*(-vx) + s[3]*vy
+
+    du1_x = 2.0 + st_x*dpsi_st_x + us_x*dpsi_us_x
+    du1_y = st_x*dpsi_st_y + us_x*dpsi_us_y
+    du2_x = st_y*dpsi_st_x + us_y*dpsi_us_x
+    du2_y = 1.0 + st_y*dpsi_st_y + us_y*dpsi_us_y
 
     dTu_u = vstack([du1_x, du1_y, du2_x, \
             du2_y])
     dTu_u = dTu_u.T.reshape([-1,2,2])
     return dTu_u
 
-def d2step(u_trj, s):
+def d2step(u, s):
     """
     This function computes D^2 varphi
-    along a trajectory using finite 
-    difference
+    at the points u
     """
-    d, n = u_trj.shape
-    eps = 1.e-4
-    u_trj_x_p = u_trj + \
-            reshape([eps*ones(n), zeros(n)], \
-            [2,n])
-    u_trj_x_m = u_trj - \
-            reshape([eps*ones(n), zeros(n)], \
-            [2,n])
+    d, n = u.shape
+    eps = 1.e-6
+    ddu = zeros((d,d,d,n))
+    
+    vx, vy = 8, 5
+    st_x = s[0]*vy + s[1]*vx
+    st_y = -s[0]*vx + s[1]*vy
+    us_x = s[2]*vy + s[3]*vx
+    us_y = -s[2]*vx + s[3]*vy
+    
+    mag = 2*pi*(vx**2 + vy**2)
+    fpi2 = 4*(pi**2)
+    d2psi_st_dx2 = -fpi2*vy*vy*sin(2*pi*(vy*x - vx*y))/mag
+    d2psi_st_dxdy = fpi2*vy*vx*sin(2*pi*(vy*x - vx*y))/mag
+    d2psi_st_dy2 = -fpi2*vx*vx*sin(2*pi*(vy*x - vx*y))/mag
+    
+    d2psi_us_dx2 = -fpi2*vx*vx*sin(2*pi*(vx*x + vy*y))/mag
+    d2psi_us_dxdy = -fpi2*vy*vx*sin(2*pi*(vx*x + vy*y))/mag
+    d2psi_us_dy2 = -fpi2*vx*vx*sin(2*pi*(vx*x + vy*y))/mag
 
-    u_trj_y_p = u_trj + \
-            reshape([zeros(n), eps*ones(n)], \
-            [2,n])
-    u_trj_y_m = u_trj - \
-            reshape([zeros(n), eps*ones(n)], \
-            [2,n])
+    ddu11 = vstack([st_x*d2psi_st_dx2 + us_x*d2psi_us_dx2,\
+                    st_x*d2psi_st_dxdy + us_x*d2psi_us_dxdy\
+                    ])
+    ddu21 = vstack([st_y*d2psi_st_dx2 + us_y*d2psi_us_dx2,\
+                    st_y*d2psi_st_dxdy + us_y*d2psi_us_dxdy\
+                    ])
+    ddu12 = vstack([st_x*d2psi_st_dxdy + us_x*d2psi_us_dxdy\
+            , st_x*d2psi_st_dy2 + us_x*d2psi_us_dy2])
 
-
-    ddu_dx_trj =  (dstep(u_trj_x_p, s) - \
-            dstep(u_trj_x_m, s))/(2.0*eps)
-
-    ddu_dy_trj =  (dstep(u_trj_y_p, s) - \
-            dstep(u_trj_y_m, s))/(2.0*eps)
-
-    return reshape(hstack([ddu_dx_trj, ddu_dy_trj]),\
-            [n,d,d,d])
+    ddu22 = vstack([st_y*d2psi_st_dydx + us_y*d2psi_us_dydx\
+            , st_y*d2psi_st_dy2 + us_y*d2psi_us_dy2])
+                
+    
+    ddu = reshape([ddu11, ddu21, ddu12, ddu22],[2,2,2,-1])
+    return ddu.T
 
