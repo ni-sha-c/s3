@@ -8,6 +8,33 @@ from scipy.interpolate import *
 from matplotlib import *
 from matplotlib.collections import LineCollection 
 #if __name__=="__main__":
+def test_clvs():
+    d = 3
+    u = rand(d,1)
+    n = 1000
+    s = [1.,Inf]
+    u_trj = step(u, s, n)[0]
+    x, y, z = u_trj
+    r,t = cart_to_cyl(x,y)
+    d, n = shape(u_trj)
+    d_u = 1
+    du_trj = dstep(u_trj, s)
+    clv_trj = clvs(u_trj, du_trj, d_u)
+    st, ct = sin(t), cos(t)
+    s2t, c2t = st[1:], ct[1:]
+    st, ct = st[:-1], ct[:-1]
+    v = rand(d)
+    v[-1] = 0.
+    v1 = zeros((n,d))
+    v1[0] = v
+    le = 0.
+    for i in range(n-1):
+        v = dot(du_trj[i],v)
+        le += log(norm(v))/n
+        v /= norm(v)
+        v1[i+1] = v 
+
+#if __name__=="__main__":
 def plot_clvs():
     u = rand(3,1)
     n = 1000
@@ -46,7 +73,7 @@ def plot_clvs():
 def plot_attractor():
 #if __name__=="__main__":
     u = rand(3,1)
-    s = [1.0]
+    s = [1.0, Inf]
     n = 20000
     u_trj = step(u, s, n).T[0]
     fig, ax = subplots(1,2)
@@ -63,8 +90,8 @@ def plot_attractor():
     ax[1].yaxis.set_tick_params(labelsize=30)
     ax[1].axis("scaled")
 
-if __name__=="__main__":
-#def plot_V1():
+#if __name__=="__main__":
+def plot_V1():
     """
     When the contraction factor s[1] is Infty, the Solenoid 
     map can be parameterized using a single parameter corresponding to the theta coordinate. For this case, the analytical 
@@ -77,7 +104,7 @@ if __name__=="__main__":
         `clvs` returns an nxdxd_u tensor made up of 
         a length n trajectory of d_u CLVs.
     """
-    s = [1.,1.e10]
+    s = [1.,Inf]
     u = rand(3,1)
     n = 1000
     u_trj = step(u,s,n)[0]
@@ -107,16 +134,15 @@ if __name__=="__main__":
     gamma_dot_x = gamma_dot[0]*dtdx(x,y)
     gamma_dot_y = gamma_dot[1]*dtdy(x,y)
     gamma_dot = vstack([gamma_dot_x, gamma_dot_y])
-    gamma_dot /= norm(gamma_dot,axis=0)
+    ngamma_dot = norm(gamma_dot, axis=0)
+    gamma_dot /= ngamma_dot
     gamma_dot = gamma_dot[:,:-1]
+
     x, y = x[1:], y[1:]
     st, ct = st[1:], ct[1:]
     v1 = v1[:,1:]
     r_dir = vstack([ct, st])
     theta_dir = vstack([-st, ct])
-    v1_proj = v1 - diag(dot(vstack([ct,st]).T,v1))*r_dir
-    v1_proj /= norm(v1_proj, axis=0)
-    assert(allclose(v1_proj, theta_dir))
     '''
     fig, ax = subplots(1,1)
     eps = 5.e-2
@@ -147,8 +173,8 @@ if __name__=="__main__":
     ax.yaxis.set_tick_params(labelsize=30)
     ax.grid(True) 
     '''
-#if __name__=="__main__":
-def test_W1():
+if __name__=="__main__":
+#def test_W1():
     """
     This function computes analytically the curvature 
     at various points on the attractor and compares against 
@@ -158,7 +184,7 @@ def test_W1():
     """
     s = [1.,1.e10]
     u = rand(3,1)
-    n = 10000
+    n = 100000
     u_trj = step(u,s,n)[0]
     d, n = u_trj.shape
     d_u = 1
@@ -174,32 +200,39 @@ def test_W1():
     r, t = cart_to_cyl(x,y) 
     st, ct = sin(t), cos(t)
     s2t, c2t = sin(2*t), cos(2*t)
-    gamma_dot = vstack([-2*s2t* - s2t*ct - 0.5*st*c2t,\
-            2*c2t + c2t*ct - 0.5*st*s2t,\
-            0.5*ct])
-    gamma_dot /= norm(gamma_dot,axis=0)
+    s0 = s[0]
+    gamma_dot = vstack([(s0 + ct/2)*(-2.0*s2t) - st*c2t/2,\
+            (s0 + ct/2)*(2*c2t) - st*s2t/2,\
+            ct/2])
+    ngamma_dot = norm(gamma_dot, axis=0)
+    gamma_dot /= ngamma_dot
+    ngamma_dot = ngamma_dot[:-1]
     gamma_dot = gamma_dot[:,:-1]
+    gamma_ddot = vstack([-0.5*(8*s0 + 5*ct)*c2t + 2*st*s2t,\
+            -2*c2t*st - (1/2)*(8*s0 + 5*ct)*s2t,\
+            -st/2])
+    ngamma_ddot = norm(gamma_ddot,axis=0)
+    gamma_ddot = gamma_ddot[:,:-1]
+    ngamma_ddot = ngamma_ddot[:-1] 
+   
+  
     x, y = x[1:], y[1:]
     st, ct = st[1:], ct[1:]
     s2t, c2t = s2t[1:], c2t[1:]
-    v1 = v1[:,1:]
-    gamma_ddot = vstack([-0.5*(8 + 5*ct)*c2t + 2*st*s2t,\
-            -2*c2t*st - (1/2)*(8 + 5*ct)*s2t,\
-            -st/2])
+    v1 = v1[:-1,1:]
     n = x.shape[0]
-    assert(allclose(gamma_ddot[0]*c2t + \
-            gamma_ddot[1]*s2t + \
-            2.5*ct, -4*ones(n)))
     eps=array([-1E-2, 1E-2]).reshape([1,2,1])
     u = vstack([x,y])
-    v1 = v1[:-1]
     W1 = W1[n_spinup:-n_spinup,:,0].T
     W1 = W1[:,1:]
     segments = u.T.reshape([-1,1,2]) + eps * v1.T.reshape([-1,1,2])
-    curvature = norm(gamma_ddot, axis=0)
-    curvature_ana = sqrt(20.0*ct + c2t + 85/4)
+    curvature = sqrt((ngamma_dot**2.0)*(ngamma_ddot**2.0) -\
+            sum(gamma_dot*gamma_ddot,axis=0)**2.0)/ngamma_dot**3.0
+    #curvature = ngamma_ddot/ngamma_dot**2.0
+    
+
     curvature_num = norm(W1, axis=0) 
-    assert(allclose(curvature, curvature_ana))
+    assert(allclose(curvature, curvature_num,rtol=0.05))
 
     lc = LineCollection(segments, cmap=plt.get_cmap('RdBu'), \
             norm=plt.Normalize(min(curvature), max(curvature)))
