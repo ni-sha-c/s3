@@ -90,13 +90,14 @@ def d2step(u, s):
     
     mag = 2*pi*(vx**2 + vy**2)
     fpi2 = 4*(pi**2)
+    x, y = u
     d2psi_st_dx2 = -fpi2*vy*vy*sin(2*pi*(vy*x - vx*y))/mag
     d2psi_st_dxdy = fpi2*vy*vx*sin(2*pi*(vy*x - vx*y))/mag
     d2psi_st_dy2 = -fpi2*vx*vx*sin(2*pi*(vy*x - vx*y))/mag
     
     d2psi_us_dx2 = -fpi2*vx*vx*sin(2*pi*(vx*x + vy*y))/mag
     d2psi_us_dxdy = -fpi2*vy*vx*sin(2*pi*(vx*x + vy*y))/mag
-    d2psi_us_dy2 = -fpi2*vx*vx*sin(2*pi*(vx*x + vy*y))/mag
+    d2psi_us_dy2 = -fpi2*vy*vy*sin(2*pi*(vx*x + vy*y))/mag
 
     ddu11 = vstack([st_x*d2psi_st_dx2 + us_x*d2psi_us_dx2,\
                     st_x*d2psi_st_dxdy + us_x*d2psi_us_dxdy\
@@ -107,7 +108,7 @@ def d2step(u, s):
     ddu12 = vstack([st_x*d2psi_st_dxdy + us_x*d2psi_us_dxdy\
             , st_x*d2psi_st_dy2 + us_x*d2psi_us_dy2])
 
-    ddu22 = vstack([st_y*d2psi_st_dydx + us_y*d2psi_us_dydx\
+    ddu22 = vstack([st_y*d2psi_st_dxdy + us_y*d2psi_us_dxdy\
             , st_y*d2psi_st_dy2 + us_y*d2psi_us_dy2])
                 
     

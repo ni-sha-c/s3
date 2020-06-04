@@ -50,4 +50,20 @@ def test_dstep():
     assert(allclose(du_fd_x % 1, du_ana[0] % 1))
     assert(allclose(du_fd_y % 1, du_ana[1] % 1))
 
-            
+def test_d2step():
+    n = 100
+    u = rand(2,n)
+    
+    s = rand(4)
+    d2_ana = d2step(u, s)
+
+    eps = 1.e-6
+    d2_x = (dstep(u + eps*reshape([1.0,0.],[2,1]), s) -\
+           dstep(u - eps*reshape([1.0,0.],[2,1]), s))/\
+           (2*eps)
+    d2_y = (dstep(u + eps*reshape([0.,1.],[2,1]), s) -\
+           dstep(u - eps*reshape([0.,1.],[2,1]), s))/\
+           (2*eps)
+       
+    assert(allclose(d2_x % 1, d2_ana[:,0] % 1)) 
+    assert(allclose(d2_y % 1, d2_ana[:,1] % 1)) 
