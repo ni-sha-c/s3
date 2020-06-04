@@ -64,8 +64,8 @@ def dstep(u, s=zeros(4)):
     us_y = s[2]*(-vx) + s[3]*vy
 
     du1_x = 2.0 + st_x*dpsi_st_x + us_x*dpsi_us_x
-    du1_y = st_x*dpsi_st_y + us_x*dpsi_us_y
-    du2_x = st_y*dpsi_st_x + us_y*dpsi_us_x
+    du1_y = 1.0 + st_x*dpsi_st_y + us_x*dpsi_us_y
+    du2_x = 1.0 + st_y*dpsi_st_x + us_y*dpsi_us_x
     du2_y = 1.0 + st_y*dpsi_st_y + us_y*dpsi_us_y
 
     dTu_u = vstack([du1_x, du1_y, du2_x, \
