@@ -113,10 +113,10 @@ if __name__=="__main__":
     
 
 
-    eps=array([-9E-2, 9E-2]).reshape([1,2,1])
+    eps=array([-1E-2, 1E-2]).reshape([1,2,1])
     segments = u.T.reshape([-1,1,2]) + eps * v1.T.reshape([-1,1,2])
-    cross_prod = (W1[0]*v1[1] - W1[1]*v1[0])
-    cross_prod = cross_prod[abs(cross_prod) < 1.0]
+    cross_prod = abs(W1[0]*v1[1] - W1[1]*v1[0])
+    #cross_prod = cross_prod[abs(cross_prod) < 1.0]
 
 
     lc = LineCollection(segments, cmap=plt.get_cmap('RdBu'), \
