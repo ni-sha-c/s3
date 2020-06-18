@@ -14,7 +14,7 @@ def step(u, s=[10.,8./3,28.], n=1):
     m = u.shape[0]
     d = u.shape[1]
     u_trj = empty((n+1,d,m))
-    u_trj[0] = u
+    u_trj[0] = u.T
     sigma, rho, beta = s
     for i in range(n):
         x = u_trj[i,0]
@@ -45,15 +45,15 @@ def dstep(u, s=[10.,8./3,28.]):
     x, y, z = u.T
 
     sigma, rho, beta = s
-    dTx_dx = 1.0 - dt*sigma  
-    dTx_dy = dt*sigma
+    dTx_dx = (1.0 - dt*sigma)*ones(m)  
+    dTx_dy = dt*sigma*ones(m)
     dTx_dz = zeros(m)
-    dTy_dx = dt*(rho - z)
-    dTy_dy = 1.0 - dt
+    dTy_dx = dt*(rho - z)*ones(m)
+    dTy_dy = (1.0 - dt)*ones(m)
     dTy_dz = dt*(-x)
     dTz_dx = dt*y
     dTz_dy = dt*x
-    dTz_dz = 1.0 - beta
+    dTz_dz = (1.0 - dt*beta)*ones(m)
 
     dTu_u = vstack([dTx_dx, dTx_dy, dTx_dz, \
                     dTy_dx, dTy_dy, dTy_dz, \
@@ -65,6 +65,9 @@ def d2step(u, s):
     """
     This function computes D^2 varphi
     at the points u
+    ddu[i,j,k,n] = d_k d_j u[n,i] 
+    where u[n,i] is the ith component 
+    of u_n.
     """
     n, d = u.shape
     ddu = zeros((d,d,d,n))
