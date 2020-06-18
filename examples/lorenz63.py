@@ -65,15 +65,15 @@ def d2step(u, s):
     """
     This function computes D^2 varphi
     at the points u
-    ddu[i,j,k,n] = d_k d_j u[n,i] 
+    ddu[n,k,i,j] = d_k d_j u[n,i] 
     where u[n,i] is the ith component 
     of u_n.
     """
     n, d = u.shape
-    ddu = zeros((d,d,d,n))
-    ddu[1, 0, 2] = -dt
-    ddu[1, 2, 0] = -dt
-    ddu[2, 0, 1] = dt
-    ddu[2, 1, 0] = dt
+    ddu = zeros((n,d,d,d))
+    ddu[:, 2, 1, 0] = -dt
+    ddu[:, 0, 1, 2] = -dt
+    ddu[:, 1, 2, 0] = dt
+    ddu[:, 0, 2, 1] = dt
     return ddu
 

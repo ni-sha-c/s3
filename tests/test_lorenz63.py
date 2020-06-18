@@ -60,18 +60,22 @@ def test_dstep():
 
 def test_d2step():
     n = 100
-    u = rand(2,n)
+    u = rand(n,3)
     
-    s = rand(4)
+    s = rand(3)
     d2_ana = d2step(u, s)
 
-    eps = 1.e-6
-    d2_x = (dstep(u + eps*reshape([1.0,0.],[2,1]), s) -\
-           dstep(u - eps*reshape([1.0,0.],[2,1]), s))/\
+    eps = 1.e-10
+    d2_x = (dstep(u + eps*reshape([1.,0.,0.],[1,3]), s) -\
+           dstep(u - eps*reshape([1.,0.,0.],[1,3]), s))/\
            (2*eps)
-    d2_y = (dstep(u + eps*reshape([0.,1.],[2,1]), s) -\
-           dstep(u - eps*reshape([0.,1.],[2,1]), s))/\
+    d2_y = (dstep(u + eps*reshape([0.,1.,0.],[1,3]), s) -\
+           dstep(u - eps*reshape([0.,1.,0.],[1,3]), s))/\
            (2*eps)
-       
-    assert(allclose(d2_x % 1, d2_ana[:,0] % 1)) 
-    assert(allclose(d2_y % 1, d2_ana[:,1] % 1)) 
+    d2_z = (dstep(u + eps*reshape([0.,0.,1.],[1,3]), s) -\
+           dstep(u - eps*reshape([0.,0.,1.],[1,3]), s))/\
+           (2*eps)
+  
+    assert(allclose(d2_x, d2_ana[:,0])) 
+    assert(allclose(d2_y, d2_ana[:,1])) 
+    assert(allclose(d2_z, d2_ana[:,2])) 
