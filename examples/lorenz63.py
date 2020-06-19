@@ -1,7 +1,7 @@
 from numpy import *
 import sys
 dt = 0.005
-def step(u, s=[10.,8./3,28.], n=1):
+def step(u, s=[10.,28.,8./3], n=1):
     '''
     Inputs:
         u: array of initial conditions, shape:mxd
@@ -30,7 +30,7 @@ def step(u, s=[10.,8./3,28.], n=1):
         u_trj[i+1,2] = z + dt*dzdt
 
     return u_trj
-def dstep(u, s=[10.,8./3,28.]):
+def dstep(u, s=[10.,28.,8./3.]):
     """
     Input info:
     s: parameters, shape:4
