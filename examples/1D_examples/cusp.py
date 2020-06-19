@@ -1,5 +1,5 @@
 from numpy import *
-def step(x, s=[1.,0.], n):
+def step(x, s=[1.,0.], n=1):
     h, gamma = s
     d, m = x.shape
     assert(d==1)
@@ -8,7 +8,7 @@ def step(x, s=[1.,0.], n):
     for i in range(n):
         x_trj[i+1] = h*(1. - \
                 abs(0.5 - x_trj[i]) - \
-                (0.25 - x_trj[i]/2)**gamma) % 1
+                (abs(0.25 - x_trj[i]/2))**gamma) % 1
     return x_trj
 
 
