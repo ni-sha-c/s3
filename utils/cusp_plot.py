@@ -13,7 +13,7 @@ if __name__=="__main__":
     n_plot = 500 
     x = reshape(linspace(0.,1.,n_plot),\
             [1,n_plot])
-    h_arr = [0.8,1.0,1.1]
+    h_arr = [0.5,0.75,1.0,1.25]
     gamma_arr = [0.1,0.2,0.3,0.5,0.9]
     h, gamma = meshgrid(h_arr, gamma_arr)
     n_g, n_h = h.shape
