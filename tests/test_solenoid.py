@@ -141,7 +141,7 @@ def analytical_jacobian(u):
 
     return du.T
 
-def analytical_dV1dt(u):
+def analytical_W1(u):
     x,y,z = u
     d, n = u.shape
     r,t = sqrt(x*x + y*y), arctan2(y,x)
@@ -168,10 +168,15 @@ def analytical_dV1dt(u):
     dV3_dt = -(19*st + 8*st*ct + 2*st*c2t - 2*s2t*ct)/\
             (den/2)
     
-    dgamma1_dt = -2.0*r_1*s2t - 0.5*st*c2t
-    dgamma2_dt = 2.0*r_1*c2t - 0.5*st*s2t
-    dgamma3_dt = 0.5*ct
+    V = analytical_V1(u)
+    dt_dx = -st/r
+    dt_dy = ct/r
 
+    dV1_V = dV1_dt*dt_dx*V[0] + dV1_dt*dt_dy*V[1]
+    dV2_V = dV2_dt*dt_dx*V[0] + dV2_dt*dt_dy*V[1]
+    dV3_V = dV3_dt*dt_dx*V[0] + dV3_dt*dt_dy*V[1]
+
+    return reshape([dV1_V, dV2_V, dV3_V],[d,n])
 
 if __name__=="__main__":
 #def test_V1():
@@ -187,12 +192,13 @@ if __name__=="__main__":
     t_dir_trj = reshape([-sin(t_trj), cos(t_trj), \
             zeros(n)], [d, n])
     du_trj = dstep(u_trj, s)
-    du_ana = analytical_jacobian(u_trj)
     v_trj = zeros((n,d))
     v_trj[-1] = [rand(), rand(), 0.]
     v_trj[-1] /= norm(v_trj[-1])
     for i in range(n):
         v_trj[i] = dot(du_trj[i-1],v_trj[i-1])
         v_trj[i] /= norm(v_trj[i])
-    v_ana = analytical_V1(u_trj)
-
+    clv_trj = clvs(u_trj, du_trj, 1)
+    ddu_trj = d2step(u_trj,s)
+    W1 = dclv_clv(clv_trj, du_trj, ddu_trj)[:,:,0].T
+    W1_ana = analytical_W1(u_trj) 
