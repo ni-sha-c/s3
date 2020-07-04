@@ -43,6 +43,30 @@ def test_dstep():
     assert(allclose(du_dx, du_dx_fd.T))
     assert(allclose(du_dy, du_dy_fd.T))
     assert(allclose(du_dz, du_dz_fd.T))
+
+def test_d2step():
+    n = 100
+    u = rand(3,n)
+
+    s = rand(3)
+    d2_ana = d2step(u, s)
+
+    eps = 1.e-6
+    d2_x = (dstep(u + eps*reshape([1.,0.,0.],[3,1]), s) -\
+           dstep(u - eps*reshape([1.,0.,0.],[3,1]), s))/\
+           (2*eps)
+    d2_y = (dstep(u + eps*reshape([0.,1.,0.],[3,1]), s) -\
+           dstep(u - eps*reshape([0.,1.,0.],[3,1]), s))/\
+           (2*eps)
+    d2_z = (dstep(u + eps*reshape([0.,0.,1.],[3,1]), s) -\
+           dstep(u - eps*reshape([0.,0.,1.],[3,1]), s))/\
+           (2*eps)
+
+    assert(allclose(d2_x, d2_ana[:,0]))
+    assert(allclose(d2_y, d2_ana[:,1]))
+    assert(allclose(d2_z, d2_ana[:,2]))
+
+
 def test_clv():
     s = [1.,1.e5]
     u = rand(3,1)
