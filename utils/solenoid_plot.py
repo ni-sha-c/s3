@@ -279,8 +279,8 @@ def plot_V1():
     ax.yaxis.set_tick_params(labelsize=30)
     ax.grid(True) 
     '''
-#if __name__=="__main__":
-def test_W1():
+if __name__=="__main__":
+#def plot_curvature():
     """
     This function computes analytically the curvature 
     at various points on the attractor and compares against 
@@ -288,56 +288,30 @@ def test_W1():
     dclv_clv, for the directional derivative of the 1st 
     CLV along itself.
     """
-    s = [1.,1.e10]
+    s = [1.,Inf]
     u = rand(3,1)
-    n = 100000
-    u_trj = step(u,s,n)[0]
+    n = 10000
+    u0 = step(u,s,n)[0,:,-1]
+    u0 = u0.reshape(3,1)
+    u_trj = step(u0,s,n)[0]
+
     d, n = u_trj.shape
-    d_u = 1
+    x, y, z = u_trj
+    t_trj = arctan2(y,x)[1:]
+    t_trj = t_trj % (2*pi)
     du_trj = dstep(u_trj, s)
-    clv_trj = clvs(u_trj, du_trj, d_u)
+    clv_trj = clvs(u_trj, du_trj, 1)
+    V1 = clv_trj[:,:,0]
     ddu_trj = d2step(u_trj,s)
     W1 = dclv_clv(clv_trj, du_trj, ddu_trj)
-    n_spinup = 100
-    v1 = clv_trj[n_spinup:-n_spinup,:,0].T
-    # gamma is the attractor curve
-    x, y = u_trj[0,n_spinup:-n_spinup],\
-            u_trj[1,n_spinup:-n_spinup]
-    r, t = cart_to_cyl(x,y) 
-    st, ct = sin(t), cos(t)
-    s2t, c2t = sin(2*t), cos(2*t)
-    s0 = s[0]
-    gamma_dot = vstack([(s0 + ct/2)*(-2.0*s2t) - st*c2t/2,\
-            (s0 + ct/2)*(2*c2t) - st*s2t/2,\
-            ct/2])
-    ngamma_dot = norm(gamma_dot, axis=0)
-    gamma_dot /= ngamma_dot
-    ngamma_dot = ngamma_dot[:-1]
-    gamma_dot = gamma_dot[:,:-1]
-    gamma_ddot = vstack([-0.5*(8*s0 + 5*ct)*c2t + 2*st*s2t,\
-            -2*c2t*st - (1/2)*(8*s0 + 5*ct)*s2t,\
-            -st/2])
-    ngamma_ddot = norm(gamma_ddot,axis=0)
-    gamma_ddot = gamma_ddot[:,:-1]
-    ngamma_ddot = ngamma_ddot[:-1] 
-   
-  
-    x, y = x[1:], y[1:]
-    st, ct = st[1:], ct[1:]
-    s2t, c2t = s2t[1:], c2t[1:]
-    v1 = v1[:-1,1:]
-    n = x.shape[0]
+    W1 = W1[:,:,0]
+    W1_ana = analytical_W1(u_trj).T[:-1]
+    W1 = W1[1:] 
     eps=array([-1E-2, 1E-2]).reshape([1,2,1])
-    u = vstack([x,y])
-    W1 = W1[n_spinup:-n_spinup,:,0].T
-    W1 = W1[:,1:]
-    segments = u.T.reshape([-1,1,2]) + eps * v1.T.reshape([-1,1,2])
-    curvature = sqrt((ngamma_dot**2.0)*(ngamma_ddot**2.0) -\
-            sum(gamma_dot*gamma_ddot,axis=0)**2.0)/ngamma_dot**3.0
-    #curvature = ngamma_ddot/ngamma_dot**2.0
-    
-
-    curvature_num = norm(W1, axis=0) 
+    segments = u_trj[:2].T.reshape([-1,1,2]) + \
+            eps * V1[:,:2].reshape([-1,1,2]) 
+    curvature_num = norm(W1, axis=1) 
+    curvature = norm(W1_ana, axis=1)
     assert(allclose(curvature, curvature_num,rtol=0.05))
 
     lc = LineCollection(segments, cmap=plt.get_cmap('RdBu'), \
@@ -352,11 +326,8 @@ def test_W1():
 
     fig, ax = subplots(1,2)    
     ax[0].add_collection(lc) 
-    ax[1].add_collection(lc1) 
-    # v1 is not aligned with t, nor is gamma_dot
-    # v1 is more aligned with gamma_dot than either 
-    # with t.
-    # draw circle of radius rad
+    ax[1].add_collection(lc1)
+    '''
     rad1 = 1.5
     xx = linspace(-rad1,rad1,10000)
     yy = sqrt(rad1*rad1 - xx*xx)
@@ -373,6 +344,7 @@ def test_W1():
     
     ax[1].plot(xx, yy,'-',color='gray',alpha=0.2)
     ax[1].plot(xx, -yy,'-',color='gray',alpha=0.2)
+    '''
     ax[0].axis('scaled')
     ax[1].axis('scaled')
    
@@ -380,7 +352,11 @@ def test_W1():
     ax[1].set_title('Numerical curvature', fontsize=30)
     ax[0].xaxis.set_tick_params(labelsize=30)
     ax[0].yaxis.set_tick_params(labelsize=30)
-    
+    ax[0].set_xlabel('x',fontsize=30)
+    ax[0].set_ylabel('y',fontsize=30)
+    ax[1].set_xlabel('x',fontsize=30)
+    ax[1].set_ylabel('y',fontsize=30)
+
     ax[1].xaxis.set_tick_params(labelsize=30)
     ax[1].yaxis.set_tick_params(labelsize=30)
     ax[0].grid(True) 
@@ -446,8 +422,8 @@ def plot_V1_components():
     ax.grid(True)
     fig.legend(fontsize=30)
 
-if __name__=="__main__":
-#def plot_W1_components():
+#if __name__=="__main__":
+def plot_W1_components():
     s = [1.,Inf]
     u = rand(3,1)
     n = 10000
@@ -462,7 +438,7 @@ if __name__=="__main__":
     du_trj = dstep(u_trj, s)
     clv_trj = clvs(u_trj, du_trj, 1)
     ddu_trj = d2step(u_trj,s)
-    W1,dzdx = dclv_clv(clv_trj, du_trj, ddu_trj)
+    W1 = dclv_clv(clv_trj, du_trj, ddu_trj)
     W1 = W1[:,:,0]
     W1_ana = analytical_W1(u_trj).T[:-1]
     W1 = W1[1:] 
