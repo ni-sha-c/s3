@@ -103,12 +103,12 @@ def analytical_W1(u):
             (den/2)
     
     V = analytical_V1(u)
-    dt_dx = -s2t/r
-    dt_dy = c2t/r
+    dt_dx = -s2t/r_1
+    dt_dy = c2t/r_1
 
-    dV1_V = dV1_dt*dt_dx*V[0] + dV1_dt*dt_dy*V[1]
-    dV2_V = dV2_dt*dt_dx*V[0] + dV2_dt*dt_dy*V[1]
-    dV3_V = dV3_dt*dt_dx*V[0] + dV3_dt*dt_dy*V[1]
+    dV1_V = dV1_dt*0.5*dt_dx*V[0] + dV1_dt*0.5*dt_dy*V[1]
+    dV2_V = dV2_dt*0.5*dt_dx*V[0] + dV2_dt*0.5*dt_dy*V[1]
+    dV3_V = dV3_dt*0.5*dt_dx*V[0] + dV3_dt*0.5*dt_dy*V[1]
 
     return reshape([dV1_V, dV2_V, dV3_V],[d,n])
 
@@ -390,7 +390,7 @@ def test_W1():
     cbar1 = fig.colorbar(lc1, cmap=get_cmap('RdBu'),norm=Normalize(min(curvature), max(curvature)),ax=ax[1])
     cbar1.ax.tick_params(labelsize=30) 
 
-if __name__=="__main__":
+def plot_V1_components():
     s = [1.,Inf]
     u = rand(3,1)
     n = 10000
@@ -440,6 +440,68 @@ if __name__=="__main__":
             label="analytical", ms=2.0)
     ax.set_xlabel(r"$\theta$", fontsize=30)
     ax.set_ylabel("$V^1_{x_3}$", fontsize=30)
+    ax.xaxis.set_tick_params(labelsize=30)
+    ax.yaxis.set_tick_params(labelsize=30)
+    ax.axis("scaled")
+    ax.grid(True)
+    fig.legend(fontsize=30)
+
+if __name__=="__main__":
+#def plot_W1_components():
+    s = [1.,Inf]
+    u = rand(3,1)
+    n = 10000
+    u0 = step(u,s,n)[0,:,-1]
+    u0 = u0.reshape(3,1)
+    u_trj = step(u0,s,n)[0]
+
+    d, n = u_trj.shape
+    x, y, z = u_trj
+    t_trj = arctan2(y,x)[1:]
+    t_trj = t_trj % (2*pi)
+    du_trj = dstep(u_trj, s)
+    clv_trj = clvs(u_trj, du_trj, 1)
+    ddu_trj = d2step(u_trj,s)
+    W1,dzdx = dclv_clv(clv_trj, du_trj, ddu_trj)
+    W1 = W1[:,:,0]
+    W1_ana = analytical_W1(u_trj).T[:-1]
+    W1 = W1[1:] 
+
+
+    fig, ax = subplots(1,1)
+    ax.plot(t_trj, abs(W1[:,0]), ".", label="numerical", \
+            ms=2.0)
+    ax.plot(t_trj, abs(W1_ana[:,0]), ".", \
+            label="analytical", ms=2.0)
+    ax.set_xlabel(r"$\theta$", fontsize=30)
+    ax.set_ylabel(r"$W^1_{x_1}$", fontsize=30)
+    ax.xaxis.set_tick_params(labelsize=30)
+    ax.yaxis.set_tick_params(labelsize=30)
+    ax.axis("scaled")
+    ax.grid(True)
+    fig.legend(loc='lower right', bbox_to_anchor=(0.9,0.35),\
+            fontsize=30,markerscale=10.0)
+
+    fig, ax = subplots(1,1)
+    ax.plot(t_trj, abs(W1[:,1]), ".", label="numerical",\
+            ms=2.0)
+    ax.plot(t_trj, abs(W1_ana[:,1]), ".", \
+            label="analytical", ms=2.0)
+    ax.set_xlabel(r"$\theta$", fontsize=30)
+    ax.set_ylabel(r"$W^1_{x_2}$", fontsize=30)
+    ax.xaxis.set_tick_params(labelsize=30)
+    ax.yaxis.set_tick_params(labelsize=30)
+    ax.axis("scaled")
+    ax.grid(True)
+    fig.legend(fontsize=30)
+    
+    fig, ax = subplots(1,1)
+    ax.plot(t_trj, abs(W1[:,2]), ".", label="numerical",\
+            ms=2.0)
+    ax.plot(t_trj, abs(W1_ana[:,2]), ".", \
+            label="analytical", ms=2.0)
+    ax.set_xlabel(r"$\theta$", fontsize=30)
+    ax.set_ylabel("$W^1_{x_3}$", fontsize=30)
     ax.xaxis.set_tick_params(labelsize=30)
     ax.yaxis.set_tick_params(labelsize=30)
     ax.axis("scaled")

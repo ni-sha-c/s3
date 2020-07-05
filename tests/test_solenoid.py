@@ -102,8 +102,8 @@ def test_clv():
     #assert(allclose(v1[2],zeros(n)))
        
     #assert(allclose(v1[2],zeros(n)))
-if __name__=="__main__":
-#def test_V1():
+#if __name__=="__main__":
+def test_W1_V1():
     s = [1.,Inf]
     u = rand(3,1)
     n = 10000
@@ -123,3 +123,5 @@ if __name__=="__main__":
     W1 = W1[:,:,0]
     W1_ana = analytical_W1(u_trj).T[:-1]
     W1 = W1[1:]
+    assert(allclose(W1, W1_ana))
+    assert(allclose(V1, V1_ana))
