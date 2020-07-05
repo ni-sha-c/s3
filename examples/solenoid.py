@@ -63,7 +63,7 @@ def dstep(u, s=[1.,4.]):
 def d2step(u, s=[1.,4.]):
     d, m = u.shape
     ddu_trj = zeros((m,d,d,d))
-    eps = 1.e-6
+    eps = 1.e-8
     ddu_trj[:,0] = (dstep(u + eps*reshape([1.,0.,0.],\
             [3,1]), s) - dstep(u - eps*reshape([1.,0.,0.],\
             [3,1]),s))/(2*eps)
@@ -76,7 +76,7 @@ def d2step(u, s=[1.,4.]):
     return ddu_trj
 
 def cart_to_cyl(x,y):
-    return [sqrt(x*x + y*y), arctan2(y, x)]
+    return [sqrt(x*x + y*y), arctan2(y, x) % (2*pi)]
 def cyl_to_cart(r,t):
     return [r*cos(t), r*sin(t)]
 def dcyl_to_cart(r,t):
