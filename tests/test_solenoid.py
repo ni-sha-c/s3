@@ -116,8 +116,10 @@ def analytical_V1(u):
     tangent_vector_field = reshape([dgamma1_dt,\
             dgamma2_dt,\
             dgamma3_dt], [d,n])
-    return tangent_vector_field/norm(tangent_vector_field,\
+    tangent_vector_field = tangent_vector_field/\
+            norm(tangent_vector_field,\
             axis=0)
+    return tangent_vector_field
 
 def analytical_jacobian(u):
     x,y,z = u
@@ -206,23 +208,18 @@ if __name__=="__main__":
 #def test_V1():
     s = [1.,Inf]
     u = rand(3,1)
-    n = 1000
+    n = 10000
     u0 = step(u,s,n)[0,:,-1]
     u0 = u0.reshape(3,1)
     u_trj = step(u0,s,n)[0]
-    
     d, n = u_trj.shape
-    t_trj = arctan2(u_trj[1], u_trj[0])
-    t_dir_trj = reshape([-sin(t_trj), cos(t_trj), \
-            zeros(n)], [d, n])
+    x, y, z = u_trj
+    t_trj = arctan2(y,x)[1:]
     du_trj = dstep(u_trj, s)
-    v_trj = zeros((n,d))
-    v_trj[-1] = [rand(), rand(), 0.]
-    v_trj[-1] /= norm(v_trj[-1])
-    for i in range(n):
-        v_trj[i] = dot(du_trj[i-1],v_trj[i-1])
-        v_trj[i] /= norm(v_trj[i])
     clv_trj = clvs(u_trj, du_trj, 1)
+    V1 = clv_trj[1:,:,0]
     ddu_trj = d2step(u_trj,s)
-    W1 = dclv_clv(clv_trj, du_trj, ddu_trj)[:,:,0].T
-    W1_ana = analytical_W1(u_trj) 
+    W1,dzdx = dclv_clv(clv_trj, du_trj, ddu_trj)
+    W1 = W1[:,:,0]
+    W1_ana = analytical_W1(u_trj).T[:-1]
+    W1 = W1[1:]

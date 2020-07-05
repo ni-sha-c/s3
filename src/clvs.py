@@ -93,6 +93,7 @@ def dclv_clv(clv_trj, du_trj, ddu_trj):
     z_trj = empty((n,d_u))
     W1 = empty((n,d,d_u))
     W1[0] = random.rand(d,d_u)
+    dz_dx = zeros((n,d_u))
     for i in range(n-1):
         clvsi = clv_trj[i]
         W1i = W1[i]
@@ -104,7 +105,7 @@ def dclv_clv(clv_trj, du_trj, ddu_trj):
         dclv_dpx = dot(du_trj[i], W1i)/z2
         W1i_part = ddu_dpx + dclv_dpx
         clv_ip1 = clv_trj[i+1]
-        dz_dx = -diag(dot(W1i_part.T, clv_ip1))
-        W1[i+1] = W1i_part + dz_dx*clv_ip1
-    return W1
+        dz_dx[i] = -diag(dot(W1i_part.T, clv_ip1))
+        W1[i+1] = W1i_part + dz_dx[i]*clv_ip1
+    return W1, dz_dx
 
