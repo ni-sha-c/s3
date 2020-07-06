@@ -421,12 +421,15 @@ if __name__ == "__main__":
 
     fig2, ax2 = subplots(1,1) 
     ax2.add_collection(lc)
-    fig2.colorbar(cm.ScalarMappable(norm=plt.Normalize(min(cross_prod),max(cross_prod)), cmap=plt.get_cmap('RdBu')), ax=ax2)
-
+    cbar = fig2.colorbar(cm.ScalarMappable(norm=plt.Normalize(min(cross_prod),max(cross_prod)), cmap=plt.get_cmap('RdBu')), ax=ax2)
+    cbar.ax.tick_params(labelsize=30)
     ax2.xaxis.set_tick_params(labelsize=30)
     ax2.yaxis.set_tick_params(labelsize=30)
     ax2.axis('scaled')
+    ax2.set_xlabel("$x_1$",fontsize=30)
+    ax2.set_ylabel("$x_2$",fontsize=30)
 
+    
 def clv_along_clv():
     """
     Differentiating along CLV
@@ -575,7 +578,7 @@ def plot_DVW():
 
 def plot_clvs():
     fig, ax = subplots(1,2)
-    s = [0.9,0.4]
+    s = [0.75,0.2]
     eps = 1.e-2
     d = 2
     u0 = random.rand(d,1)
@@ -593,12 +596,12 @@ def plot_clvs():
             [u[1] - eps*v2[1], u[1] + eps*v2[1]],\
             lw=2.0, color='black')
 
-    ax[0].set_title('$V^1$',fontsize=24)
+    ax[0].set_title('$V^1$',fontsize=30)
     
-    ax[1].set_title('$V^2$',fontsize=24)
+    ax[1].set_title('$V^2$',fontsize=30)
     for j in range(2):
-            ax[j].xaxis.set_tick_params(labelsize=24)
-            ax[j].yaxis.set_tick_params(labelsize=24)
+            ax[j].xaxis.set_tick_params(labelsize=30)
+            ax[j].yaxis.set_tick_params(labelsize=30)
 
 
     return fig,ax
