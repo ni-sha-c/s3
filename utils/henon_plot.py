@@ -88,14 +88,18 @@ def plot_clvs():
     #ax.plot([x - eps*v2[0], x + eps*v2[0]],\
      #       [y - eps*v2[1], y + eps*v2[1]],"b")
 
-    ax.xaxis.set_tick_params(labelsize=24) 
-    ax.yaxis.set_tick_params(labelsize=24) 
+    ax.xaxis.set_tick_params(labelsize=40) 
+    ax.yaxis.set_tick_params(labelsize=40) 
+    ax.axis("scaled")
+    ax.grid(True)
+    ax.set_xlabel("$x_1$",fontsize=40)
+    ax.set_ylabel("$x_2$",fontsize=40)
 
-
+#def plot_W1():
 if __name__=="__main__":
     s = [1.4,0.3]
     u = fixed_point(s)
-    n = 40000
+    n = 100000
     u_trj = step(u,s,n)[0]
     d, n = u_trj.shape
     d_u = 1
@@ -116,22 +120,27 @@ if __name__=="__main__":
     eps=array([-1E-2, 1E-2]).reshape([1,2,1])
     segments = u.T.reshape([-1,1,2]) + eps * v1.T.reshape([-1,1,2])
     cross_prod = abs(W1[0]*v1[1] - W1[1]*v1[0])
-    #cross_prod = cross_prod[abs(cross_prod) < 1.0]
+    segments = segments[(abs(cross_prod) > 100.0)]
+    cross_prod = cross_prod[(abs(cross_prod) > 100.0)]
+    
 
-
-    lc = LineCollection(segments, cmap=plt.get_cmap('RdBu'), \
-            norm=colors.Normalize(min(cross_prod), max(cross_prod)))
+    lc = LineCollection(segments, cmap=plt.get_cmap('cool'), \
+            norm=colors.LogNorm(min(cross_prod), max(cross_prod)))
     #lc.set_array(ones(u.shape[1]))
     lc.set_array(cross_prod)
     #lc.set_array(norm(W1,axis=0))
-    lc.set_linewidth(1)
+    lc.set_linewidth(2)
 
     fig2, ax2 = subplots(1,1)
     ax2.add_collection(lc)
-    fig2.colorbar(cm.ScalarMappable(norm=plt.Normalize(min(cross_prod),max(cross_prod)), cmap=plt.get_cmap('RdBu')), ax=ax2)
-
-    ax2.xaxis.set_tick_params(labelsize=30)
-    ax2.yaxis.set_tick_params(labelsize=30)
+    cbar = fig2.colorbar(cm.ScalarMappable(norm=colors.LogNorm(min(cross_prod),max(cross_prod)), cmap=plt.get_cmap('cool')), ax=ax2, orientation="horizontal",shrink=0.4,pad=0.06)
+    cbar.ax.tick_params(labelsize=50)
+    cbar.ax.xaxis.get_offset_text().set_fontsize(60)
+    ax2.xaxis.set_tick_params(labelsize=60)
+    ax2.yaxis.set_tick_params(labelsize=60)
     ax2.axis('scaled')
-    
+    ax2.grid(True)
+    ax2.set_xlabel("$x_1$",fontsize=60)
+    ax2.set_ylabel("$x_2$",fontsize=60)
+
 

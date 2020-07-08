@@ -359,6 +359,45 @@ def test_dz():
     ax[0].yaxis.set_tick_params(labelsize=30)
     ax[1].yaxis.set_tick_params(labelsize=30)
     '''
+#if __name__=="__main__":
+def plot_V1():
+    u = rand(2).reshape(2,1)
+    n_p = 4
+    n = 10000
+    d = 2
+    d_u = 1
+    n_spinup = 100
+    n_plot = n + 1 - n_spinup
+    V1 = empty((n_p, d, n_plot))
+    U = empty((n_p, d, n_plot))
+
+    for i in range(n_p):
+        s = zeros(n_p)
+        s[i] = 1.0
+        u_trj = step(u, s, n)[0]
+        du_trj = dstep(u_trj, s)
+        clv_trj = clvs(u_trj, du_trj, d_u)
+        V1[i] = clv_trj[n_spinup:,:,0].T
+        U[i] = u_trj[:,n_spinup:]
+        
+    eps=array([-1E-2, 1E-2]).reshape([1,2,1])
+    # Plot dclv for the different set of parameters
+    
+    fig, ax = subplots(2,2) 
+    for i in range(2):
+        for j in range(2):
+            u = U[2*i + j]
+            v1 = V1[2*i + j]
+            segments = u.T.reshape([-1,1,2]) + \
+                    eps * v1.T.reshape([-1,1,2])
+            lc = LineCollection(segments,color="red")
+            lc.set_linewidth(1)
+            ax[i,j].add_collection(lc)
+            ax[i,j].xaxis.set_tick_params(labelsize=30)
+            ax[i,j].yaxis.set_tick_params(labelsize=30)
+            ax[i,j].axis('scaled')
+            ax[i,j].set_title(r"$s_{\rm %i} = %i$" % (2*i + j, 1),fontsize=30)
+
 
 if __name__ == "__main__":
 #def plot_dDV1cdotV1():
@@ -407,10 +446,11 @@ if __name__ == "__main__":
             ax[i,j].add_collection(lc)
             cbar = fig.colorbar(cm.ScalarMappable(norm=plt.Normalize(min(cross_prod),max(cross_prod)), cmap=plt.get_cmap('RdBu')), ax=ax[i,j])
             cbar.ax.tick_params(labelsize=30)
+            cbar.ax.yaxis.get_offset_text().set_fontsize(30)
             ax[i,j].xaxis.set_tick_params(labelsize=30)
             ax[i,j].yaxis.set_tick_params(labelsize=30)
             ax[i,j].axis('scaled')
-            ax[i,j].set_title(r"$s_{\rm %i} = %i$" % (2*i + j, 1),fontsize=24)
+            ax[i,j].set_title(r"$s_{\rm %i} = %i$" % (2*i + j, 1),fontsize=30)
 
 def clv_along_clv():
     """
