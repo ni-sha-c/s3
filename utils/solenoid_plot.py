@@ -279,8 +279,8 @@ def plot_V1():
     ax.yaxis.set_tick_params(labelsize=30)
     ax.grid(True) 
     '''
-if __name__=="__main__":
-#def plot_curvature():
+#if __name__=="__main__":
+def plot_curvature():
     """
     This function computes analytically the curvature 
     at various points on the attractor and compares against 
@@ -352,10 +352,10 @@ if __name__=="__main__":
     ax[1].set_title('Numerical curvature', fontsize=30)
     ax[0].xaxis.set_tick_params(labelsize=30)
     ax[0].yaxis.set_tick_params(labelsize=30)
-    ax[0].set_xlabel('x',fontsize=30)
-    ax[0].set_ylabel('y',fontsize=30)
-    ax[1].set_xlabel('x',fontsize=30)
-    ax[1].set_ylabel('y',fontsize=30)
+    ax[0].set_xlabel('$x_1$',fontsize=30)
+    ax[0].set_ylabel('$x_2$',fontsize=30)
+    ax[1].set_xlabel('$x_1$',fontsize=30)
+    ax[1].set_ylabel('$x_2$',fontsize=30)
 
     ax[1].xaxis.set_tick_params(labelsize=30)
     ax[1].yaxis.set_tick_params(labelsize=30)
@@ -383,38 +383,41 @@ def plot_V1_components():
     V1 = clv_trj[1:,:,0]
     V1_ana = analytical_V1(u_trj).T[:-1]
     fig, ax = subplots(1,1)
-    ax.plot(t_trj, abs(V1[:,0]), ".", label="numerical", \
-            ms=2.0)
-    ax.plot(t_trj, abs(V1_ana[:,0]), ".", \
-            label="analytical", ms=2.0)
-    ax.set_xlabel(r"$\theta$", fontsize=30)
+    ax.plot(t_trj, abs(V1[:,0]), "X", label="numerical", \
+            ms=5.0)
+    ax.plot(t_trj, abs(V1_ana[:,0]), "o", \
+            label="analytical", ms=0.5)
+    ax.set_xlabel(r"$t$", fontsize=30)
     ax.set_ylabel(r"$V^1_{x_1}$", fontsize=30)
     ax.xaxis.set_tick_params(labelsize=30)
     ax.yaxis.set_tick_params(labelsize=30)
     ax.axis("scaled")
     ax.grid(True)
-    fig.legend(loc='lower right', bbox_to_anchor=(0.75,0.4),\
-            fontsize=30,markerscale=10.0)
+    leg = fig.legend(loc='lower right', bbox_to_anchor=(0.78,0.34),\
+            fontsize=30,frameon=False)
 
+    leg.legendHandles[0]._legmarker.set_markersize(10)
+    leg.legendHandles[1]._legmarker.set_markersize(10)
+    
     fig, ax = subplots(1,1)
-    ax.plot(t_trj, abs(V1[:,1]), ".", label="numerical",\
-            ms=2.0)
-    ax.plot(t_trj, abs(V1_ana[:,1]), ".", \
-            label="analytical", ms=2.0)
-    ax.set_xlabel(r"$\theta$", fontsize=30)
+    ax.plot(t_trj, abs(V1[:,1]), "X", label="numerical",\
+            ms=5.0)
+    ax.plot(t_trj, abs(V1_ana[:,1]), "o", \
+            label="analytical", ms=0.5)
+    ax.set_xlabel(r"$t$", fontsize=30)
     ax.set_ylabel(r"$V^1_{x_2}$", fontsize=30)
     ax.xaxis.set_tick_params(labelsize=30)
     ax.yaxis.set_tick_params(labelsize=30)
     ax.axis("scaled")
     ax.grid(True)
-    fig.legend(fontsize=30)
+    leg = fig.legend(fontsize=30)
     
     fig, ax = subplots(1,1)
-    ax.plot(t_trj, abs(V1[:,2]), ".", label="numerical",\
-            ms=2.0)
-    ax.plot(t_trj, abs(V1_ana[:,2]), ".", \
-            label="analytical", ms=2.0)
-    ax.set_xlabel(r"$\theta$", fontsize=30)
+    ax.plot(t_trj, abs(V1[:,2]), "X", label="numerical",\
+            ms=5.0)
+    ax.plot(t_trj, abs(V1_ana[:,2]), "o", \
+            label="analytical", ms=0.5)
+    ax.set_xlabel(r"$t$", fontsize=30)
     ax.set_ylabel("$V^1_{x_3}$", fontsize=30)
     ax.xaxis.set_tick_params(labelsize=30)
     ax.yaxis.set_tick_params(labelsize=30)
@@ -445,41 +448,44 @@ def plot_W1_components():
 
 
     fig, ax = subplots(1,1)
-    ax.plot(t_trj, abs(W1[:,0]), ".", label="numerical", \
-            ms=2.0)
-    ax.plot(t_trj, abs(W1_ana[:,0]), ".", \
-            label="analytical", ms=2.0)
-    ax.set_xlabel(r"$\theta$", fontsize=30)
+    ax.plot(t_trj, abs(W1[:,0]), 'X', label="numerical", \
+            ms=5.0)
+    ax.plot(t_trj, abs(W1_ana[:,0]), 'o', \
+            label="analytical", ms=0.5)
+    ax.set_xlabel(r"$t$", fontsize=30)
     ax.set_ylabel(r"$W^1_{x_1}$", fontsize=30)
     ax.xaxis.set_tick_params(labelsize=30)
     ax.yaxis.set_tick_params(labelsize=30)
     ax.axis("scaled")
     ax.grid(True)
-    fig.legend(loc='lower right', bbox_to_anchor=(0.9,0.35),\
-            fontsize=30,markerscale=10.0)
+    leg = fig.legend(loc='lower right', bbox_to_anchor=(0.6,0.35),\
+            fontsize=30,frameon=False)
+    leg.legendHandles[0]._legmarker.set_markersize(10)
+    leg.legendHandles[1]._legmarker.set_markersize(10)
+
 
     fig, ax = subplots(1,1)
-    ax.plot(t_trj, abs(W1[:,1]), ".", label="numerical",\
-            ms=2.0)
-    ax.plot(t_trj, abs(W1_ana[:,1]), ".", \
-            label="analytical", ms=2.0)
-    ax.set_xlabel(r"$\theta$", fontsize=30)
+    ax.plot(t_trj, abs(W1[:,1]), "X", label="numerical",\
+            ms=5.0)
+    ax.plot(t_trj, abs(W1_ana[:,1]), "o", \
+            label="analytical", ms=0.5)
+    ax.set_xlabel(r"$t$", fontsize=30)
     ax.set_ylabel(r"$W^1_{x_2}$", fontsize=30)
     ax.xaxis.set_tick_params(labelsize=30)
     ax.yaxis.set_tick_params(labelsize=30)
     ax.axis("scaled")
     ax.grid(True)
-    fig.legend(fontsize=30)
+    leg = fig.legend(fontsize=30)
     
     fig, ax = subplots(1,1)
-    ax.plot(t_trj, abs(W1[:,2]), ".", label="numerical",\
-            ms=2.0)
-    ax.plot(t_trj, abs(W1_ana[:,2]), ".", \
-            label="analytical", ms=2.0)
-    ax.set_xlabel(r"$\theta$", fontsize=30)
+    ax.plot(t_trj, abs(W1[:,2]), "X", label="numerical",\
+            ms=5.0)
+    ax.plot(t_trj, abs(W1_ana[:,2]), "o", \
+            label="analytical", ms=0.5)
+    ax.set_xlabel(r"$t$", fontsize=30)
     ax.set_ylabel("$W^1_{x_3}$", fontsize=30)
     ax.xaxis.set_tick_params(labelsize=30)
     ax.yaxis.set_tick_params(labelsize=30)
     ax.axis("scaled")
     ax.grid(True)
-    fig.legend(fontsize=30)
+    leg = fig.legend(fontsize=30)
