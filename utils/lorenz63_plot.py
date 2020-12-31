@@ -240,6 +240,7 @@ if __name__=="__main__":
     u2 = step2(u.T, s, n2)
     x1, y1, z1 = u1[-1,0,:], u1[-1,1,:], u1[-1,2,:]
     x2, y2, z2 = u2[-1,0,:], u2[-1,1,:], u2[-1,2,:]
+    n_grid = 0
     x01 = u1[-1,0,n_grid//2]
     y01 = u1[-1,1,n_grid//2]
     z01 = u1[-1,2,n_grid//2]
@@ -252,10 +253,14 @@ if __name__=="__main__":
 
     d2 = (x2 - x02)**2 + (y2 - y02)**2 + (z2 - z02)**2
     d2 = sqrt(d2)
-
+    d2[d2 <= 1.e-8] = 1.e-8
     fig, ax = subplots(1,2)
-    ax[0].plot(x1, z1, '.', ms=5.0)
-    ax[1].plot(x2, z2, '.', ms=5.0)
+    ax[0].scatter(x1, z1, c=d1, cmap="brg", \
+            norm=colors.LogNorm(vmin=d2.min(), \
+            vmax=d2.max()))
+    ax[1].scatter(x2, z2, c=d2, cmap="brg", \
+            norm=colors.LogNorm(vmin=d2.min(), \
+            vmax=d2.max()))
     
     for j in range(2):
         ax[j].xaxis.set_tick_params(labelsize=40)
@@ -264,5 +269,6 @@ if __name__=="__main__":
         ax[j].set_ylabel("$x_3$", fontsize=40)
 
 
+    cbar = fig.colorbar(cm.ScalarMappable(norm=colors.LogNorm(vmin=d2.min(),vmax=d2.max()), cmap="brg"), ax=ax[0])
      
 
