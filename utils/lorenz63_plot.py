@@ -238,10 +238,20 @@ if __name__=="__main__":
     u = vstack([x, zeros(n_grid), ones(n_grid)]) 
     u1 = step2(u.T, s, n1)
     u2 = step2(u.T, s, n2)
-    x1 = u1[-1,0,:]
-    z1 = u1[-1,2,:]
-    x2 = u2[-1,0,:]
-    z2 = u2[-1,2,:]
+    x1, y1, z1 = u1[-1,0,:], u1[-1,1,:], u1[-1,2,:]
+    x2, y2, z2 = u2[-1,0,:], u2[-1,1,:], u2[-1,2,:]
+    x01 = u1[-1,0,n_grid//2]
+    y01 = u1[-1,1,n_grid//2]
+    z01 = u1[-1,2,n_grid//2]
+    x02 = u2[-1,0,n_grid//2]
+    y02 = u2[-1,1,n_grid//2]
+    z02 = u2[-1,2,n_grid//2]
+
+    d1 = (x1 - x01)**2 + (y1 - y01)**2 + (z1 - z01)**2
+    d1 = sqrt(d1)
+
+    d2 = (x2 - x02)**2 + (y2 - y02)**2 + (z2 - z02)**2
+    d2 = sqrt(d2)
 
     fig, ax = subplots(1,2)
     ax[0].plot(x1, z1, '.', ms=5.0)
