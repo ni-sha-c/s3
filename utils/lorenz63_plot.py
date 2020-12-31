@@ -236,6 +236,23 @@ if __name__=="__main__":
     n_grid = 10001
     x = linspace(-0.01, 0.01, n_grid)
     u = vstack([x, zeros(n_grid), ones(n_grid)]) 
-    u = step(u, s, 5000).T
+    u1 = step(u.T, s, n1)
+    u2 = step(u.T, s, n2)
+    x1 = u1[-1,0,:]
+    z1 = u1[-1,2,:]
+    x2 = u2[-1,0,:]
+    z2 = u2[-1,2,:]
+
+    fig, ax = subplots(1,2)
+    ax[0].plot(x1, z1, '.', ms=5.0)
+    ax[1].plot(x2, z2, '.', ms=5.0)
+    
+    for j in range(2):
+        ax[j].xaxis.set_tick_params(labelsize=40)
+        ax[j].yaxis.set_tick_params(labelsize=40)
+        ax[j].set_xlabel("$x_1$", fontsize=40)
+        ax[j].set_ylabel("$x_3$", fontsize=40)
+
+
      
 
