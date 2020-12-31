@@ -231,13 +231,13 @@ if __name__=="__main__":
 
     d_u = 1
     n_spinup = 100
-    n1 = 3600
-    n2 = 4000
+    n1 = 1800
+    n2 = 2000
     n_grid = 10001
     x = linspace(-0.01, 0.01, n_grid)
     u = vstack([x, zeros(n_grid), ones(n_grid)]) 
-    u1 = step(u.T, s, n1)
-    u2 = step(u.T, s, n2)
+    u1 = step2(u.T, s, n1)
+    u2 = step2(u.T, s, n2)
     x1 = u1[-1,0,:]
     z1 = u1[-1,2,:]
     x2 = u2[-1,0,:]
