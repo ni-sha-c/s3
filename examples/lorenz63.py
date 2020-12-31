@@ -1,6 +1,6 @@
 from numpy import *
 import sys
-dt = 0.005
+dt = 0.01
 def step(u, s=[10.,28.,8./3], n=1):
     '''
     Inputs:
@@ -24,6 +24,45 @@ def step(u, s=[10.,28.,8./3], n=1):
         dxdt = sigma*(y - x)
         dydt = x*(rho - z) - y
         dzdt = x*y - beta*z
+
+        u_trj[i+1,0] = x + dt*dxdt
+        u_trj[i+1,1] = y + dt*dydt
+        u_trj[i+1,2] = z + dt*dzdt
+
+    return u_trj
+
+def step2(u, s=[10.,28.,8./3], n=1):
+    '''
+    Inputs:
+        u: array of initial conditions, shape:mxd
+        s: parameter array, shape:4
+        n: number of timesteps
+        m: number of initial conditions
+    Output:
+        primal trajectory, shape: (n+1)xdxm
+    '''
+    m = u.shape[0]
+    d = u.shape[1]
+    u_trj = empty((n+1,d,m))
+    u_trj[0] = u.T
+    sigma, rho, beta = s
+    for i in range(n):
+        x = u_trj[i,0]
+        y = u_trj[i,1]
+        z = u_trj[i,2]
+
+        dxdt = sigma*(y - x)
+        dydt = x*(rho - z) - y
+        dzdt = x*y - beta*z
+
+        x1 = x + dt/2*dxdt
+        y1 = y + dt/2*dydt
+        z1 = z + dt/2*dzdt
+
+        dxdt = sigma*(y1 - x1)
+        dydt = x1*(rho - z1) - y1
+        dzdt = x1*y1 - beta*z1
+
 
         u_trj[i+1,0] = x + dt*dxdt
         u_trj[i+1,1] = y + dt*dydt
