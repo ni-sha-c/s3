@@ -233,42 +233,63 @@ if __name__=="__main__":
     n_spinup = 100
     n1 = 1800
     n2 = 2000
-    n_grid = 10001
+    n_grid = 10000
     x = linspace(-0.01, 0.01, n_grid)
     u = vstack([x, zeros(n_grid), ones(n_grid)]) 
     u1 = step2(u.T, s, n1)
     u2 = step2(u.T, s, n2)
     x1, y1, z1 = u1[-1,0,:], u1[-1,1,:], u1[-1,2,:]
     x2, y2, z2 = u2[-1,0,:], u2[-1,1,:], u2[-1,2,:]
-    n_grid = 0
+    
+    x01 = mean(u1[-1,0,:])
+    y01 = mean(u1[-1,1,:])
+    z01 = mean(u1[-1,2,:])
+
+    x02 = mean(u2[-1,0,:])
+    y02 = mean(u2[-1,1,:])
+    z02 = mean(u2[-1,2,:])
+    '''
     x01 = u1[-1,0,n_grid//2]
     y01 = u1[-1,1,n_grid//2]
     z01 = u1[-1,2,n_grid//2]
     x02 = u2[-1,0,n_grid//2]
     y02 = u2[-1,1,n_grid//2]
     z02 = u2[-1,2,n_grid//2]
-
-    d1 = (x1 - x01)**2 + (y1 - y01)**2 + (z1 - z01)**2
-    d1 = sqrt(d1)
-
-    d2 = (x2 - x02)**2 + (y2 - y02)**2 + (z2 - z02)**2
-    d2 = sqrt(d2)
-    d2[d2 <= 1.e-8] = 1.e-8
-    fig, ax = subplots(1,2)
-    ax[0].scatter(x1, z1, c=d1, cmap="brg", \
-            norm=colors.LogNorm(vmin=d2.min(), \
-            vmax=d2.max()))
-    ax[1].scatter(x2, z2, c=d2, cmap="brg", \
-            norm=colors.LogNorm(vmin=d2.min(), \
-            vmax=d2.max()))
+    '''
+    d1 = (x1 - x01)**2.0 + (y1 - y01)**2.0 + (z1 - z01)**2.0
+    d1 = sqrt(d1)/z01
     
-    for j in range(2):
-        ax[j].xaxis.set_tick_params(labelsize=40)
-        ax[j].yaxis.set_tick_params(labelsize=40)
-        ax[j].set_xlabel("$x_1$", fontsize=40)
-        ax[j].set_ylabel("$x_3$", fontsize=40)
+    d2 = (x2 - x02)**2.0 + (y2 - y02)**2.0 + (z2 - z02)**2.0
+    d2 = sqrt(d2)/z02
+    fig, ax = subplots(1,1)
+    ax.scatter(x1, z1, c=d1, cmap="brg", \
+            norm=colors.LogNorm(vmin=d2.min(), \
+            vmax=d2.max()),s=125.0)
+    
+    fig1, ax1 = subplots(1,1)
+    ax1.scatter(x2, z2, c=d2, cmap="brg", \
+            norm=colors.LogNorm(vmin=d2.min(), \
+            vmax=d2.max()),s=125.0)
+    ax.axis("scaled")
+    ax1.axis("scaled")
+    ax.set_ylim([0,43.])
+    ax1.set_ylim([0,43.])
+
+    ax.xaxis.set_tick_params(labelsize=45)
+    ax.yaxis.set_tick_params(labelsize=45)
+    ax.set_xlabel("$x_1$", fontsize=45)
+    ax.set_ylabel("$x_3$", fontsize=45)
+
+    ax1.xaxis.set_tick_params(labelsize=45)
+    ax1.yaxis.set_tick_params(labelsize=45)
+    ax1.set_xlabel("$x_1$", fontsize=45)
+    ax1.set_ylabel("$x_3$", fontsize=45)
 
 
-    cbar = fig.colorbar(cm.ScalarMappable(norm=colors.LogNorm(vmin=d2.min(),vmax=d2.max()), cmap="brg"), ax=ax[0])
+    cbar = fig.colorbar(cm.ScalarMappable(norm=colors.LogNorm(vmin=d2.min(),vmax=d2.max()), cmap="brg"), ax=ax, ticks=[1.e-2, 1.e-1, 1., 1.e1])
      
+    cbar.ax.tick_params(labelsize=40)
+    cbar.ax.set_yticklabels([1.e-2,1.e-1,1.,1.e1])
+    #fig.set_tight_layout(ax)
+    #fig1.set_tight_layout(ax)
 
