@@ -114,8 +114,8 @@ if __name__=="__main__":
     eps = 1.e-2
     u = u_trj[:,n_spinup:-n_spinup]
     W1 = W1[n_spinup:-n_spinup,:,0].T
-    
-
+    x, y = u[0], u[1] 
+    eps1 = 1.e-3
 
     eps=array([-1E-2, 1E-2]).reshape([1,2,1])
     segments = u.T.reshape([-1,1,2]) + eps * v1.T.reshape([-1,1,2])
@@ -149,8 +149,10 @@ if __name__=="__main__":
     ax1.grid(True)
     ax1.set_xlabel("$x_1$",fontsize=30)
     ax1.set_ylabel("$x_2$",fontsize=30)
-    ax1.set_facecolor("black")
 
+    ax1.plot([x - eps1*v1[0], x + eps1*v1[0]],\
+            [y - eps1*v1[1], y + eps1*v1[1]],"k")
+    
     lc = LineCollection(segments_2, cmap=plt.get_cmap('coolwarm'), \
             norm=colors.LogNorm(min(cross_prod_2), max(cross_prod_2)))
     #lc.set_array(ones(u.shape[1]))
@@ -169,7 +171,6 @@ if __name__=="__main__":
     ax1.grid(True)
     ax1.set_xlabel("$x_1$",fontsize=30)
     ax1.set_ylabel("$x_2$",fontsize=30)
-    ax1.set_facecolor("black")
 
     lc = LineCollection(segments_3, cmap=plt.get_cmap('coolwarm'), \
             norm=colors.LogNorm(min(cross_prod_3), max(cross_prod_3)))
@@ -189,7 +190,6 @@ if __name__=="__main__":
     ax1.grid(True)
     ax1.set_xlabel("$x_1$",fontsize=30)
     ax1.set_ylabel("$x_2$",fontsize=30)
-    ax1.set_facecolor("black")
 
     lc = LineCollection(segments_4, cmap=plt.get_cmap('coolwarm'), \
             norm=colors.LogNorm(min(cross_prod_4), max(cross_prod_4)))
@@ -209,5 +209,4 @@ if __name__=="__main__":
     ax1.grid(True)
     ax1.set_xlabel("$x_1$",fontsize=30)
     ax1.set_ylabel("$x_2$",fontsize=30)
-    ax1.set_facecolor("black")
 

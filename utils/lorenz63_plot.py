@@ -286,10 +286,10 @@ if __name__=="__main__":
     ax1.set_ylabel("$x_3$", fontsize=45)
 
 
-    cbar = fig.colorbar(cm.ScalarMappable(norm=colors.LogNorm(vmin=d2.min(),vmax=d2.max()), cmap="brg"), ax=ax, ticks=[1.e-2, 1.e-1, 1., 1.e1])
+    cbar = fig.colorbar(cm.ScalarMappable(norm=colors.LogNorm(vmin=d2.min(),vmax=d2.max()), cmap="brg"), ax=ax)
      
-    cbar.ax.tick_params(labelsize=40)
-    cbar.ax.set_yticklabels([1.e-2,1.e-1,1.,1.e1])
+    cbar.ax.tick_params(labelsize=80)
+    #cbar.ax.set_yticklabels([1.e-2,1.e-1,1.,1.e1])
     #fig.set_tight_layout(ax)
     #fig1.set_tight_layout(ax)
 
