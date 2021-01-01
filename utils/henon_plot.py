@@ -23,8 +23,8 @@ def plot_iterations():
     y_min, y_max = (-2., 2.)
     ax.set_xlim([x_min,x_max]) 
     ax.set_ylim([y_min,y_max])
-    ax.xaxis.set_tick_params(labelsize=30)
-    ax.yaxis.set_tick_params(labelsize=30)
+    ax.xaxis.set_tick_params(labelsize=45)
+    ax.yaxis.set_tick_params(labelsize=45)
     line, = ax.plot([],[],"ko",ms=3)
 
     
@@ -41,7 +41,7 @@ def plot_iterations():
         u_last = u0
         line.set_label(n_samples)
         n_atr[0] = n_samples
-        fig.legend(fontsize=30)
+        fig.legend(fontsize=45)
         line.set_data(u0[0], u0[1])
         return line,
     def animate(i):
@@ -60,7 +60,7 @@ def plot_iterations():
         u_last[:,:n_atr[(i+1)%n]] = u_plot
         line.set_data(u_plot[0], u_plot[1])
         line.set_label(n_atr[i])
-        fig.legend(fontsize=30)
+        fig.legend(fontsize=45)
         return line,
    
     anim = FuncAnimation(fig, animate, \
@@ -99,7 +99,7 @@ def plot_clvs():
 if __name__=="__main__":
     s = [1.4,0.3]
     u = fixed_point(s)
-    n = 100000
+    n = 50000
     u_trj = step(u,s,n)[0]
     d, n = u_trj.shape
     d_u = 1
@@ -131,48 +131,55 @@ if __name__=="__main__":
 
 #cross_prod = log(cross_prod) 
 
-    lc = LineCollection(segments_1, cmap=plt.get_cmap('coolwarm'), \
+    lc = LineCollection(segments_1, cmap=plt.get_cmap('Spectral'), \
             norm=colors.LogNorm(min(cross_prod_1), max(cross_prod_1)))
     #lc.set_array(ones(u.shape[1]))
     lc.set_array(cross_prod_1)
     #lc.set_array(norm(W1,axis=0))
-    lc.set_linewidth(1)
+    lc.set_linewidth(2.5)
 
     fig1, ax1 = subplots(1,1)
     ax1.add_collection(lc)
-    cbar = fig1.colorbar(cm.ScalarMappable(norm=colors.LogNorm(min(cross_prod_1),max(cross_prod_1)), cmap=plt.get_cmap('coolwarm')), ax=ax1, orientation="horizontal",shrink=0.4,pad=0.1)
-    cbar.ax.tick_params(labelsize=30)
-    cbar.ax.xaxis.get_offset_text().set_fontsize(30)
-    ax1.xaxis.set_tick_params(labelsize=30)
-    ax1.yaxis.set_tick_params(labelsize=30)
+    cbar = fig1.colorbar(cm.ScalarMappable(norm=colors.LogNorm(min(cross_prod_1),max(cross_prod_1)), cmap=plt.get_cmap('Spectral')), ax=ax1, orientation="horizontal",shrink=0.4,pad=0.1)
+    cbar.ax.tick_params(labelsize=45)
+    cbar.ax.xaxis.get_offset_text().set_fontsize(45)
+    ax1.xaxis.set_tick_params(labelsize=45)
+    ax1.yaxis.set_tick_params(labelsize=45)
     ax1.axis('scaled')
     ax1.grid(True)
-    ax1.set_xlabel("$x_1$",fontsize=30)
-    ax1.set_ylabel("$x_2$",fontsize=30)
+    ax1.set_xlabel("$x_1$",fontsize=45)
+    ax1.set_ylabel("$x_2$",fontsize=45)
 
-    ax1.plot([x - eps1*v1[0], x + eps1*v1[0]],\
-            [y - eps1*v1[1], y + eps1*v1[1]],"k")
+    inds = abs(cross_prod) < 0.1
+    ax1.plot([x[inds] - eps1*v1[0][inds], x[inds] + eps1*v1[0][inds]],\
+            [y[inds] - eps1*v1[1][inds], y[inds] + eps1*v1[1][inds]],"k",lw=2.5)
+   
     
-    lc = LineCollection(segments_2, cmap=plt.get_cmap('coolwarm'), \
+    lc = LineCollection(segments_2, cmap=plt.get_cmap('Spectral'), \
             norm=colors.LogNorm(min(cross_prod_2), max(cross_prod_2)))
     #lc.set_array(ones(u.shape[1]))
     lc.set_array(cross_prod_2)
     #lc.set_array(norm(W1,axis=0))
-    lc.set_linewidth(1)
+    lc.set_linewidth(2.5)
 
     fig1, ax1 = subplots(1,1)
     ax1.add_collection(lc)
-    cbar = fig1.colorbar(cm.ScalarMappable(norm=colors.LogNorm(min(cross_prod_2),max(cross_prod_2)), cmap=plt.get_cmap('coolwarm')), ax=ax1, orientation="horizontal",shrink=0.4,pad=0.1)
-    cbar.ax.tick_params(labelsize=30)
-    cbar.ax.xaxis.get_offset_text().set_fontsize(30)
-    ax1.xaxis.set_tick_params(labelsize=30)
-    ax1.yaxis.set_tick_params(labelsize=30)
+    cbar = fig1.colorbar(cm.ScalarMappable(norm=colors.LogNorm(min(cross_prod_2),max(cross_prod_2)), cmap=plt.get_cmap('Spectral')), ax=ax1, orientation="horizontal",shrink=0.4,pad=0.1)
+    cbar.ax.tick_params(labelsize=45)
+    cbar.ax.xaxis.get_offset_text().set_fontsize(45)
+    ax1.xaxis.set_tick_params(labelsize=45)
+    ax1.yaxis.set_tick_params(labelsize=45)
     ax1.axis('scaled')
     ax1.grid(True)
-    ax1.set_xlabel("$x_1$",fontsize=30)
-    ax1.set_ylabel("$x_2$",fontsize=30)
+    ax1.set_xlabel("$x_1$",fontsize=45)
+    ax1.set_ylabel("$x_2$",fontsize=45)
+    inds = abs(cross_prod) < 1.0
+    ax1.plot([x[inds] - eps1*v1[0][inds], x[inds] + eps1*v1[0][inds]],\
+            [y[inds] - eps1*v1[1][inds], y[inds] + eps1*v1[1][inds]],"k",lw=0.5)
+ 
 
-    lc = LineCollection(segments_3, cmap=plt.get_cmap('coolwarm'), \
+    
+    lc = LineCollection(segments_3, cmap=plt.get_cmap('Spectral'), \
             norm=colors.LogNorm(min(cross_prod_3), max(cross_prod_3)))
     #lc.set_array(ones(u.shape[1]))
     lc.set_array(cross_prod_3)
@@ -181,32 +188,39 @@ if __name__=="__main__":
 
     fig1, ax1 = subplots(1,1)
     ax1.add_collection(lc)
-    cbar = fig1.colorbar(cm.ScalarMappable(norm=colors.LogNorm(min(cross_prod_3),max(cross_prod_3)), cmap=plt.get_cmap('coolwarm')), ax=ax1, orientation="horizontal",shrink=0.4,pad=0.1)
-    cbar.ax.tick_params(labelsize=30)
-    cbar.ax.xaxis.get_offset_text().set_fontsize(30)
-    ax1.xaxis.set_tick_params(labelsize=30)
-    ax1.yaxis.set_tick_params(labelsize=30)
+    cbar = fig1.colorbar(cm.ScalarMappable(norm=colors.LogNorm(min(cross_prod_3),max(cross_prod_3)), cmap=plt.get_cmap('Spectral')), ax=ax1, orientation="horizontal",shrink=0.4,pad=0.1)
+    cbar.ax.tick_params(labelsize=45)
+    cbar.ax.xaxis.get_offset_text().set_fontsize(45)
+    ax1.xaxis.set_tick_params(labelsize=45)
+    ax1.yaxis.set_tick_params(labelsize=45)
     ax1.axis('scaled')
     ax1.grid(True)
-    ax1.set_xlabel("$x_1$",fontsize=30)
-    ax1.set_ylabel("$x_2$",fontsize=30)
+    ax1.set_xlabel("$x_1$",fontsize=45)
+    ax1.set_ylabel("$x_2$",fontsize=45)
+    inds = abs(cross_prod) < 10.0
+    ax1.plot([x[inds] - eps1*v1[0][inds], x[inds] + eps1*v1[0][inds]],\
+            [y[inds] - eps1*v1[1][inds], y[inds] + eps1*v1[1][inds]],"k",lw=0.5)
 
-    lc = LineCollection(segments_4, cmap=plt.get_cmap('coolwarm'), \
-            norm=colors.LogNorm(min(cross_prod_4), max(cross_prod_4)))
+
+    lc = LineCollection(segments, cmap=plt.get_cmap('Spectral'), \
+            norm=colors.LogNorm(min(cross_prod), max(cross_prod)))
     #lc.set_array(ones(u.shape[1]))
-    lc.set_array(cross_prod_4)
+    lc.set_array(cross_prod)
     #lc.set_array(norm(W1,axis=0))
-    lc.set_linewidth(1)
+    lc.set_linewidth(2.5)
 
     fig1, ax1 = subplots(1,1)
     ax1.add_collection(lc)
-    cbar = fig1.colorbar(cm.ScalarMappable(norm=colors.LogNorm(min(cross_prod_4),max(cross_prod_4)), cmap=plt.get_cmap('coolwarm')), ax=ax1, orientation="horizontal",shrink=0.4,pad=0.1)
-    cbar.ax.tick_params(labelsize=30)
-    cbar.ax.xaxis.get_offset_text().set_fontsize(30)
-    ax1.xaxis.set_tick_params(labelsize=30)
-    ax1.yaxis.set_tick_params(labelsize=30)
+    cbar = fig1.colorbar(cm.ScalarMappable(norm=colors.LogNorm(min(cross_prod),max(cross_prod)), cmap=plt.get_cmap('Spectral')), ax=ax1, orientation="horizontal",shrink=0.4,pad=0.1)
+    cbar.ax.tick_params(labelsize=45)
+    cbar.ax.xaxis.get_offset_text().set_fontsize(45)
+    ax1.xaxis.set_tick_params(labelsize=45)
+    ax1.yaxis.set_tick_params(labelsize=45)
     ax1.axis('scaled')
     ax1.grid(True)
-    ax1.set_xlabel("$x_1$",fontsize=30)
-    ax1.set_ylabel("$x_2$",fontsize=30)
-
+    ax1.set_xlabel("$x_1$",fontsize=45)
+    ax1.set_ylabel("$x_2$",fontsize=45)
+    #inds = abs(cross_prod) < 100.0
+    #ax1.plot([x[inds] - eps1*v1[0][inds], x[inds] + eps1*v1[0][inds]],\
+     #       [y[inds] - eps1*v1[1][inds], y[inds] + eps1*v1[1][inds]],"k",lw=0.5)
+ 
