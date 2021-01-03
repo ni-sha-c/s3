@@ -99,7 +99,7 @@ def plot_clvs():
 if __name__=="__main__":
     s = [1.4,0.3]
     u = fixed_point(s)
-    n = 50000
+    n = 20000
     u_trj = step(u,s,n)[0]
     d, n = u_trj.shape
     d_u = 1
@@ -117,7 +117,7 @@ if __name__=="__main__":
     x, y = u[0], u[1] 
     eps1 = 1.e-3
 
-    eps=array([-1E-2, 1E-2]).reshape([1,2,1])
+    eps=array([-5E-2, 5E-2]).reshape([1,2,1])
     segments = u.T.reshape([-1,1,2]) + eps * v1.T.reshape([-1,1,2])
     cross_prod = abs(W1[0]*v1[1] - W1[1]*v1[0])
     segments_1 = segments[(abs(cross_prod) > 0.1)]
@@ -136,7 +136,7 @@ if __name__=="__main__":
     #lc.set_array(ones(u.shape[1]))
     lc.set_array(cross_prod_1)
     #lc.set_array(norm(W1,axis=0))
-    lc.set_linewidth(2.5)
+    lc.set_linewidth(6.0)
 
     fig1, ax1 = subplots(1,1)
     ax1.add_collection(lc)
@@ -152,7 +152,7 @@ if __name__=="__main__":
 
     inds = abs(cross_prod) < 0.1
     ax1.plot([x[inds] - eps1*v1[0][inds], x[inds] + eps1*v1[0][inds]],\
-            [y[inds] - eps1*v1[1][inds], y[inds] + eps1*v1[1][inds]],"k",lw=2.5)
+            [y[inds] - eps1*v1[1][inds], y[inds] + eps1*v1[1][inds]],"k",lw=0.1)
    
     
     lc = LineCollection(segments_2, cmap=plt.get_cmap('Spectral'), \
@@ -160,7 +160,7 @@ if __name__=="__main__":
     #lc.set_array(ones(u.shape[1]))
     lc.set_array(cross_prod_2)
     #lc.set_array(norm(W1,axis=0))
-    lc.set_linewidth(2.5)
+    lc.set_linewidth(6.0)
 
     fig1, ax1 = subplots(1,1)
     ax1.add_collection(lc)
@@ -175,7 +175,7 @@ if __name__=="__main__":
     ax1.set_ylabel("$x_2$",fontsize=45)
     inds = abs(cross_prod) < 1.0
     ax1.plot([x[inds] - eps1*v1[0][inds], x[inds] + eps1*v1[0][inds]],\
-            [y[inds] - eps1*v1[1][inds], y[inds] + eps1*v1[1][inds]],"k",lw=0.5)
+            [y[inds] - eps1*v1[1][inds], y[inds] + eps1*v1[1][inds]],"k",lw=0.2)
  
 
     
@@ -184,11 +184,11 @@ if __name__=="__main__":
     #lc.set_array(ones(u.shape[1]))
     lc.set_array(cross_prod_3)
     #lc.set_array(norm(W1,axis=0))
-    lc.set_linewidth(1)
+    lc.set_linewidth(6.0)
 
     fig1, ax1 = subplots(1,1)
     ax1.add_collection(lc)
-    cbar = fig1.colorbar(cm.ScalarMappable(norm=colors.LogNorm(min(cross_prod_3),max(cross_prod_3)), cmap=plt.get_cmap('Spectral')), ax=ax1, orientation="horizontal",shrink=0.4,pad=0.1)
+    cbar = fig1.colorbar(cm.ScalarMappable(norm=colors.LogNorm(min(cross_prod_3),max(cross_prod_3)), cmap=plt.get_cmap('Spectral')), ax=ax1, orientation="horizontal",shrink=0.4,pad=0.2)
     cbar.ax.tick_params(labelsize=45)
     cbar.ax.xaxis.get_offset_text().set_fontsize(45)
     ax1.xaxis.set_tick_params(labelsize=45)
@@ -199,19 +199,20 @@ if __name__=="__main__":
     ax1.set_ylabel("$x_2$",fontsize=45)
     inds = abs(cross_prod) < 10.0
     ax1.plot([x[inds] - eps1*v1[0][inds], x[inds] + eps1*v1[0][inds]],\
-            [y[inds] - eps1*v1[1][inds], y[inds] + eps1*v1[1][inds]],"k",lw=0.5)
+            [y[inds] - eps1*v1[1][inds], y[inds] + eps1*v1[1][inds]],"k",lw=0.2)
 
 
-    lc = LineCollection(segments, cmap=plt.get_cmap('Spectral'), \
-            norm=colors.LogNorm(min(cross_prod), max(cross_prod)))
+
+    lc = LineCollection(segments_4, cmap=plt.get_cmap('Spectral'), \
+            norm=colors.LogNorm(min(cross_prod_4), max(cross_prod_4)))
     #lc.set_array(ones(u.shape[1]))
-    lc.set_array(cross_prod)
+    lc.set_array(cross_prod_4)
     #lc.set_array(norm(W1,axis=0))
-    lc.set_linewidth(2.5)
+    lc.set_linewidth(6.0)
 
     fig1, ax1 = subplots(1,1)
     ax1.add_collection(lc)
-    cbar = fig1.colorbar(cm.ScalarMappable(norm=colors.LogNorm(min(cross_prod),max(cross_prod)), cmap=plt.get_cmap('Spectral')), ax=ax1, orientation="horizontal",shrink=0.4,pad=0.1)
+    cbar = fig1.colorbar(cm.ScalarMappable(norm=colors.LogNorm(min(cross_prod_4),max(cross_prod_4)), cmap=plt.get_cmap('Spectral')), ax=ax1, orientation="horizontal",shrink=0.4,pad=0.2)
     cbar.ax.tick_params(labelsize=45)
     cbar.ax.xaxis.get_offset_text().set_fontsize(45)
     ax1.xaxis.set_tick_params(labelsize=45)
@@ -220,7 +221,7 @@ if __name__=="__main__":
     ax1.grid(True)
     ax1.set_xlabel("$x_1$",fontsize=45)
     ax1.set_ylabel("$x_2$",fontsize=45)
-    #inds = abs(cross_prod) < 100.0
-    #ax1.plot([x[inds] - eps1*v1[0][inds], x[inds] + eps1*v1[0][inds]],\
-     #       [y[inds] - eps1*v1[1][inds], y[inds] + eps1*v1[1][inds]],"k",lw=0.5)
+    inds = abs(cross_prod) < 100.0
+    ax1.plot([x[inds] - eps1*v1[0][inds], x[inds] + eps1*v1[0][inds]],\
+            [y[inds] - eps1*v1[1][inds], y[inds] + eps1*v1[1][inds]],"k",lw=0.2)
  

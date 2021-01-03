@@ -288,7 +288,7 @@ if __name__=="__main__":
 
     cbar = fig.colorbar(cm.ScalarMappable(norm=colors.LogNorm(vmin=d2.min(),vmax=d2.max()), cmap="brg"), ax=ax)
      
-    cbar.ax.tick_params(labelsize=80)
+    cbar.ax.tick_params(labelsize=45,which="both")
     #cbar.ax.set_yticklabels([1.e-2,1.e-1,1.,1.e1])
     #fig.set_tight_layout(ax)
     #fig1.set_tight_layout(ax)
